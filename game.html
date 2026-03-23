@@ -417,33 +417,34 @@ tailwind.config = {
         <div class="absolute inset-0 pointer-events-none z-20 border-[12px] border-surface-container-low rounded-lg" style="box-shadow: inset 0 0 40px rgba(0,0,0,0.8)"></div>
 
         <!-- Reel 1 -->
-        <div class="reel-window bg-[#0a0014] rounded relative flex items-center justify-center">
-          <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
-          <div id="reel1-strip" class="reel-strip flex flex-col">
-            <div class="reel-symbol text-secondary" style="text-shadow: 0 0 15px rgba(255,108,143,0.6)">7</div>
+        <div class="reel-window bg-[#0a0014] rounded relative flex items-center justify-center overflow-hidden">
+          <!-- Scrolling strip -->
+          <div id="reel1-strip" class="reel-strip flex flex-col" style="transition: transform 0s">
+            <!-- Symbols injected by JS -->
           </div>
-          <div id="reel1-shadow-top" class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none"></div>
-          <div id="reel1-shadow-bottom" class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/80 to-transparent z-10 pointer-events-none"></div>
+          <!-- Shadow overlays -->
+          <div class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/90 to-transparent z-10 pointer-events-none"></div>
+          <div class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/90 to-transparent z-10 pointer-events-none"></div>
+          <!-- Glossy -->
+          <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
         </div>
 
         <!-- Reel 2 -->
-        <div class="reel-window bg-[#0a0014] rounded relative flex items-center justify-center">
-          <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
-          <div id="reel2-strip" class="reel-strip flex flex-col">
-            <div class="reel-symbol text-secondary" style="text-shadow: 0 0 15px rgba(255,108,143,0.6)">7</div>
+        <div class="reel-window bg-[#0a0014] rounded relative flex items-center justify-center overflow-hidden">
+          <div id="reel2-strip" class="reel-strip flex flex-col" style="transition: transform 0s">
           </div>
-          <div id="reel2-shadow-top" class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none"></div>
-          <div id="reel2-shadow-bottom" class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/80 to-transparent z-10 pointer-events-none"></div>
+          <div class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/90 to-transparent z-10 pointer-events-none"></div>
+          <div class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/90 to-transparent z-10 pointer-events-none"></div>
+          <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
         </div>
 
         <!-- Reel 3 -->
-        <div class="reel-window bg-[#0a0014] rounded relative flex items-center justify-center">
-          <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
-          <div id="reel3-strip" class="reel-strip flex flex-col">
-            <div class="reel-symbol text-secondary" style="text-shadow: 0 0 15px rgba(255,108,143,0.6)">7</div>
+        <div class="reel-window bg-[#0a0014] rounded relative flex items-center justify-center overflow-hidden">
+          <div id="reel3-strip" class="reel-strip flex flex-col" style="transition: transform 0s">
           </div>
-          <div id="reel3-shadow-top" class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none"></div>
-          <div id="reel3-shadow-bottom" class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/80 to-transparent z-10 pointer-events-none"></div>
+          <div class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/90 to-transparent z-10 pointer-events-none"></div>
+          <div class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/90 to-transparent z-10 pointer-events-none"></div>
+          <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
         </div>
       </div>
 
@@ -561,22 +562,20 @@ tailwind.config = {
     spinHistory: []
   };
 
-  // Prize pool: matching number → reward multiplier
-  const PRIZES = {
-    0: 0, 1: 0, 2: 0, 3: 50,   // 0-2 = lose, 3 = 50K
-    4: 100, 5: 100, 6: 200,     // 4-5 = 100K, 6 = 200K
-    7: 500,                      // 7 = 500K (Jackpot!)
-    8: 100, 9: 100              // 8-9 = 100K
-  };
+  const SYMBOLS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const STRIP_HEIGHT = 110;
+  const STRIP_COUNT = 20; // symbols in strip
 
-  const PRIZE_NAMES = {
-    0: 'Ghê quá!', 1: 'Chưa trúng!', 2: 'Lần sau nhé!',
-    3: 'Trúng 50K', 4: 'Trúng 100K', 5: 'Trúng 100K',
-    6: 'Trúng 200K', 7: '🎉 JACKPOT 500K! 🎉', 8: 'Trúng 100K', 9: 'Trúng 100K'
+  // Prize pool
+  const PRIZES = {
+    0: 0, 1: 0, 2: 0, 3: 50,
+    4: 100, 5: 100, 6: 200,
+    7: 500,
+    8: 100, 9: 100
   };
 
   // === DOM Elements ===
-  const reelStrips = [
+  let reelStrips = [
     document.getElementById('reel1-strip'),
     document.getElementById('reel2-strip'),
     document.getElementById('reel3-strip')
@@ -594,9 +593,15 @@ tailwind.config = {
   const screenNoSpins = document.getElementById('screen-nospins');
   const coinRain = document.getElementById('coin-rain');
 
+  // Spin state per reel
+  const reelState = [
+    { isSpinning: false, intervalId: null, pos: 0, targetPos: null },
+    { isSpinning: false, intervalId: null, pos: 0, targetPos: null },
+    { isSpinning: false, intervalId: null, pos: 0, targetPos: null }
+  ];
+
   // === Init ===
   function init() {
-    // Check session
     if (!sessionStorage.getItem('userPhone')) {
       window.location.href = 'login.html';
       return;
@@ -604,6 +609,8 @@ tailwind.config = {
     spinsLeft.textContent = state.spinsLeft;
     spinsDisplay.textContent = state.spinsLeft;
     updateUI();
+    // Build initial strips
+    reelStrips.forEach((_, i) => buildReelStrip(i, 7));
   }
 
   function updateUI() {
@@ -622,124 +629,151 @@ tailwind.config = {
     betDisplay.textContent = state.bet + 'K';
   }
 
-  // === Reel Spinning Logic ===
-  const SYMBOLS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  // === Build a reel strip with many symbols ===
+  function buildReelStrip(reelIndex, initialSymbol) {
+    const strip = reelStrips[reelIndex];
+    strip.innerHTML = '';
 
-  function buildReelStrip(symbol) {
-    // Build a strip with the symbol in the middle, random symbols above/below
-    const strip = document.createElement('div');
-    strip.className = 'reel-strip flex flex-col';
+    // Create STRIP_COUNT symbols
+    for (let i = 0; i < STRIP_COUNT; i++) {
+      const div = document.createElement('div');
+      div.className = 'reel-symbol';
+      div.style.height = STRIP_HEIGHT + 'px';
+      div.style.lineHeight = STRIP_HEIGHT + 'px';
+      div.style.fontSize = '72px';
+      div.style.fontFamily = 'Space Grotesk, sans-serif';
+      div.style.fontWeight = '900';
+      div.style.textAlign = 'center';
+      div.style.userSelect = 'none';
 
-    // Top symbols (off-screen)
-    for (let i = 0; i < 3; i++) {
-      const d = document.createElement('div');
-      d.className = 'reel-symbol text-on-surface/30';
-      d.style.fontSize = '48px';
-      d.style.lineHeight = '110px';
-      d.textContent = SYMBOLS[Math.floor(Math.random() * 10)];
-      strip.appendChild(d);
+      // Position 3 (index 10) is the visible center — put initialSymbol there
+      const pos = (i - 3 + STRIP_COUNT) % STRIP_COUNT;
+      if (i === 3) {
+        // Visible center
+        div.textContent = initialSymbol;
+        div.style.color = '#ff6c8f';
+        div.style.textShadow = '0 0 15px rgba(255,108,143,0.6)';
+        div.classList.add('reel-center');
+      } else {
+        // Off-screen / fading
+        const dist = Math.min(Math.abs(i - 3), Math.abs(i - 3 + STRIP_COUNT), Math.abs(i - 3 - STRIP_COUNT));
+        const opacity = dist === 0 ? 1 : Math.max(0.15, 1 - dist * 0.25);
+        const scale = dist === 0 ? 1 : Math.max(0.6, 1 - dist * 0.08);
+        div.style.opacity = opacity;
+        div.style.transform = `scale(${scale})`;
+        div.style.color = 'rgba(239, 223, 255, ' + opacity * 0.4 + ')';
+        div.textContent = SYMBOLS[Math.floor(Math.random() * 10)];
+      }
+      strip.appendChild(div);
     }
 
-    // Visible symbol
-    const visible = document.createElement('div');
-    visible.className = 'reel-symbol text-secondary';
-    visible.style.textShadow = '0 0 15px rgba(255,108,143,0.6)';
-    visible.id = 'reel-visible';
-    visible.textContent = symbol;
-    strip.appendChild(visible);
-
-    // Bottom symbols (off-screen)
-    for (let i = 0; i < 3; i++) {
-      const d = document.createElement('div');
-      d.className = 'reel-symbol text-on-surface/30';
-      d.style.fontSize = '48px';
-      d.style.lineHeight = '110px';
-      d.textContent = SYMBOLS[Math.floor(Math.random() * 10)];
-      strip.appendChild(d);
-    }
-
-    return strip;
+    // Set initial position — center symbol at position 3 should be at viewport center
+    // The strip is positioned so that the symbol at index 3 is in the center of the reel-window
+    strip.style.transform = `translateY(${-3 * STRIP_HEIGHT}px)`;
+    reelState[reelIndex].pos = -3;
   }
 
-  let spinIntervals = [];
+  // === Cycle a random number into the visible center slot ===
+  function cycleReelNumber(reelIndex) {
+    const strip = reelStrips[reelIndex];
+    const symbols = strip.querySelectorAll('.reel-symbol');
+    // The center is at index 3
+    const center = symbols[3];
+    if (center) {
+      center.textContent = SYMBOLS[Math.floor(Math.random() * 10)];
+    }
+  }
 
+  // === Start spinning a reel ===
   function startReelSpin(reelIndex) {
-    const strip = reelStrips[reelIndex];
-    strip.classList.add('spinning');
-    strip.style.transform = 'translateY(0)';
+    reelState[reelIndex].isSpinning = true;
+    reelState[reelIndex].pos = 0;
 
-    let pos = 0;
-    const stripHeight = 110; // px per symbol
-    const totalSymbols = 7; // 3 + 1 + 3
+    // Rapid interval to cycle visible number
+    const numInterval = setInterval(() => {
+      cycleReelNumber(reelIndex);
+    }, 60);
 
-    const interval = setInterval(() => {
-      pos = (pos + 1) % totalSymbols;
-      strip.style.transform = `translateY(-${pos * stripHeight}px)`;
-    }, 80);
+    // Position scrolling interval
+    const posInterval = setInterval(() => {
+      const s = reelState[reelIndex];
+      s.pos = (s.pos - 1 + STRIP_COUNT) % STRIP_COUNT;
+      reelStrips[reelIndex].style.transform = `translateY(${s.pos * STRIP_HEIGHT - 3 * STRIP_HEIGHT}px)`;
+    }, 60); // same speed as number cycling
 
-    spinIntervals.push({ reelIndex, interval });
+    reelState[reelIndex].intervalId = { num: numInterval, pos: posInterval };
   }
 
+  // === Stop a reel at a specific symbol ===
   function stopReelSpin(reelIndex, finalSymbol, onComplete) {
-    const { interval } = spinIntervals.find(s => s.reelIndex === reelIndex);
-    clearInterval(interval);
+    const s = reelState[reelIndex];
+    s.isSpinning = false;
 
+    // Clear spinning intervals
+    if (s.intervalId) {
+      clearInterval(s.intervalId.num);
+      clearInterval(s.intervalId.pos);
+      s.intervalId = null;
+    }
+
+    // Find the center index
+    const centerIdx = 3;
+
+    // Find nearest position where the strip would put the final symbol at center
+    // We need to rebuild the strip so finalSymbol is at index 3
+    // Strip should show: [faded... , finalSymbol, faded...]
+    // The position should land so that the symbol at index 3 aligns with center
     const strip = reelStrips[reelIndex];
-    strip.classList.remove('spinning');
-    strip.classList.add('stopping');
+    strip.innerHTML = '';
 
-    // Rebuild strip with final symbol
-    const stripHeight = 110;
-    const totalSymbols = 7;
+    // Build new strip: index 0 to STRIP_COUNT-1
+    // At index 3 we put finalSymbol, others random
+    for (let i = 0; i < STRIP_COUNT; i++) {
+      const div = document.createElement('div');
+      div.style.height = STRIP_HEIGHT + 'px';
+      div.style.lineHeight = STRIP_HEIGHT + 'px';
+      div.style.fontSize = '72px';
+      div.style.fontFamily = 'Space Grotesk, sans-serif';
+      div.style.fontWeight = '900';
+      div.style.textAlign = 'center';
+      div.style.userSelect = 'none';
+      div.style.transition = 'none';
 
-    // Rebuild with final symbol centered
-    const newStrip = document.createElement('div');
-    newStrip.className = 'reel-strip flex flex-col stopping';
-
-    // Top
-    for (let i = 0; i < 3; i++) {
-      const d = document.createElement('div');
-      d.className = 'reel-symbol text-on-surface/30';
-      d.style.fontSize = '48px';
-      d.style.lineHeight = '110px';
-      d.textContent = SYMBOLS[Math.floor(Math.random() * 10)];
-      newStrip.appendChild(d);
+      if (i === centerIdx) {
+        // The WINNING / visible center
+        div.textContent = finalSymbol;
+        div.style.color = '#ff6c8f';
+        div.style.textShadow = '0 0 15px rgba(255,108,143,0.6)';
+      } else {
+        // Fading symbols
+        const dist = Math.min(
+          Math.abs(i - centerIdx),
+          Math.abs(i - centerIdx + STRIP_COUNT),
+          Math.abs(i - centerIdx - STRIP_COUNT)
+        );
+        const opacity = Math.max(0.15, 1 - dist * 0.18);
+        const scale = Math.max(0.65, 1 - dist * 0.07);
+        div.style.opacity = opacity;
+        div.style.transform = `scale(${scale})`;
+        div.style.color = 'rgba(239, 223, 255, ' + (opacity * 0.5) + ')';
+        div.textContent = SYMBOLS[Math.floor(Math.random() * 10)];
+      }
+      strip.appendChild(div);
     }
 
-    // Center (final)
-    const visible = document.createElement('div');
-    visible.className = 'reel-symbol text-secondary';
-    visible.style.textShadow = '0 0 15px rgba(255,108,143,0.6)';
-    visible.textContent = finalSymbol;
-    newStrip.appendChild(visible);
+    // Snap to initial offset so index 3 is in center
+    strip.style.transition = 'none';
+    strip.style.transform = `translateY(${-centerIdx * STRIP_HEIGHT}px)`;
 
-    // Bottom
-    for (let i = 0; i < 3; i++) {
-      const d = document.createElement('div');
-      d.className = 'reel-symbol text-on-surface/30';
-      d.style.fontSize = '48px';
-      d.style.lineHeight = '110px';
-      d.textContent = SYMBOLS[Math.floor(Math.random() * 10)];
-      newStrip.appendChild(d);
-    }
-
-    // Animate to center
-    newStrip.style.transition = 'none';
-    newStrip.style.transform = `translateY(-${4 * stripHeight}px)`;
-
-    reelStrips[reelIndex].replaceWith(newStrip);
-    reelStrips[reelIndex] = newStrip;
-
-    // Snap to final position
+    // Easing animation to final position
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        newStrip.style.transition = `transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)`;
-        newStrip.style.transform = `translateY(-${3 * stripHeight}px)`;
+        strip.style.transition = 'transform 0.65s cubic-bezier(0.25, 1, 0.5, 1)';
+        strip.style.transform = `translateY(${-centerIdx * STRIP_HEIGHT}px)`;
 
         setTimeout(() => {
-          newStrip.classList.remove('stopping');
           if (onComplete) onComplete();
-        }, 650);
+        }, 700);
       });
     });
   }
@@ -747,19 +781,18 @@ tailwind.config = {
   // === Main Spin ===
   async function spin() {
     if (state.isSpinning) return;
-    if (state.spinsLeft <= 0) {
-      updateUI();
-      return;
-    }
+    if (state.spinsLeft <= 0) { updateUI(); return; }
 
     state.isSpinning = true;
     state.spinHistory = [];
 
-    // Update UI
     spinText.style.display = 'none';
     spinSpinner.style.display = 'block';
     btnSpin.disabled = true;
     coinRain.style.display = 'block';
+
+    // Reset reel state
+    reelState.forEach(s => { s.isSpinning = false; s.pos = 0; });
 
     // Generate final values
     const finalValues = [
@@ -769,137 +802,74 @@ tailwind.config = {
     ];
     state.reelValues = finalValues;
 
-    // Start all reels spinning
+    // Start all reels spinning immediately
     startReelSpin(0);
     startReelSpin(1);
     startReelSpin(2);
 
-    // Stop reels one by one with delays
-    const isWin = finalValues[0] === finalValues[1] && finalValues[1] === finalValues[2];
-
-    // Stop reel 1
-    setTimeout(() => stopReelSpin(0, finalValues[0], () => {
-      state.spinHistory.push(finalValues[0]);
-    }), 800);
-
-    // Stop reel 2
-    setTimeout(() => stopReelSpin(1, finalValues[1], () => {
-      state.spinHistory.push(finalValues[1]);
-    }), 1600);
-
-    // Stop reel 3 (last)
+    // Stop reels one by one
+    setTimeout(() => stopReelSpin(0, finalValues[0], () => state.spinHistory.push(finalValues[0])), 800);
+    setTimeout(() => stopReelSpin(1, finalValues[1], () => state.spinHistory.push(finalValues[1])), 1700);
     setTimeout(() => stopReelSpin(2, finalValues[2], async () => {
       state.spinHistory.push(finalValues[2]);
 
-      // All stopped
       await new Promise(r => setTimeout(r, 400));
-
-      // Hide coin rain
       coinRain.style.display = 'none';
 
-      // Check win
       const won = finalValues[0] === finalValues[1] && finalValues[1] === finalValues[2];
       const winAmount = won ? (PRIZES[finalValues[0]] * state.bet / 10) : 0;
 
-      // Decrement spins
       state.spinsLeft--;
       sessionStorage.setItem('spinsLeft', state.spinsLeft);
       spinsLeft.textContent = state.spinsLeft;
       spinsDisplay.textContent = state.spinsLeft;
 
-      // Save to NocoDB
-      await saveSpinResult(finalValues, won, winAmount);
-
-      // Win animation
       if (won) {
         triggerWinEffect();
         await new Promise(r => setTimeout(r, 2000));
       }
 
-      // Show last win
       if (winAmount > 0) {
         lastWin.style.display = 'flex';
         lastWinAmount.textContent = '+' + winAmount + 'K';
         lastWinAmount.className = 'font-headline font-bold ' + (winAmount >= 500 ? 'text-primary' : 'text-secondary') + ' text-lg';
       }
 
-      // Save result to session
       sessionStorage.setItem('lastReels', JSON.stringify(finalValues));
       sessionStorage.setItem('lastWin', won);
       sessionStorage.setItem('lastWinAmount', winAmount);
 
-      // Reset spin button
       state.isSpinning = false;
       spinText.style.display = 'block';
       spinSpinner.style.display = 'none';
       btnSpin.disabled = false;
 
-      // If no spins left, go to result screen
       if (state.spinsLeft <= 0) {
         await new Promise(r => setTimeout(r, 1000));
         window.location.href = 'result.html';
       }
-    }), 2400);
+    }), 2600);
   }
 
   function triggerWinEffect() {
-    // Add glow to winning reels
     reelStrips.forEach(strip => {
-      const visible = strip.querySelector('#reel-visible') || strip.querySelector('.reel-symbol');
-      if (visible) {
-        visible.style.color = '#ffd709';
-        visible.style.textShadow = '0 0 30px rgba(255,215,9,0.9), 0 0 60px rgba(255,215,9,0.5)';
-        visible.classList.add('reel-win');
+      const center = strip.querySelector('.reel-symbol:nth-child(4)');
+      if (center) {
+        center.style.color = '#ffd709';
+        center.style.textShadow = '0 0 30px rgba(255,215,9,0.9), 0 0 60px rgba(255,215,9,0.5)';
+        center.style.transform = 'scale(1.15)';
       }
     });
-
     // Screen flash
-    document.body.style.animation = 'none';
-    document.body.style.transition = 'none';
+    document.body.style.transition = 'background-color 0.3s ease';
     document.body.style.backgroundColor = '#ffd709';
     setTimeout(() => {
       document.body.style.transition = 'background-color 0.5s ease';
       document.body.style.backgroundColor = '#150629';
-    }, 150);
+    }, 200);
   }
 
-  async function saveSpinResult(values, won, winAmount) {
-    const leadId = sessionStorage.getItem('leadId');
-    if (!leadId) return;
-
-    try {
-      const nocoToken = localStorage.getItem('NOCO_TOKEN');
-      const nocoUrl = localStorage.getItem('NOCO_URL');
-      if (!nocoToken || !nocoUrl) return;
-
-      await fetch(`${nocoUrl}/api/v1/db/data/v1/jackpot_777/spin_results`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'xc-token': nocoToken
-        },
-        body: JSON.stringify({
-          lead_id: parseInt(leadId),
-          phone: sessionStorage.getItem('userPhone'),
-          reel1: values[0],
-          reel2: values[1],
-          reel3: values[2],
-          is_win: won,
-          win_amount: winAmount,
-          bet: state.bet,
-          spins_remaining: state.spinsLeft,
-          prize_name: won ? PRIZE_NAMES[values[0]] : 'Không trúng',
-          created_at: new Date().toISOString()
-        })
-      });
-    } catch (e) {
-      console.warn('NocoDB save failed:', e);
-    }
-  }
-
-  function goHome() {
-    window.location.href = 'login.html';
-  }
+  function goHome() { window.location.href = 'login.html'; }
 
   init();
 </script>
