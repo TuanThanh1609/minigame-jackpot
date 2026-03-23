@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#150629"/>
+<title>777 Royale - Quay Số</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-20..200&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "on-background": "#efdfff",
+        "surface": "#150629",
+        "surface-container-low": "#1b0a31",
+        "surface-container": "#22103a",
+        "surface-container-high": "#291543",
+        "surface-container-highest": "#301a4d",
+        "surface-variant": "#301a4d",
+        "surface-dim": "#150629",
+        "surface-bright": "#372056",
+        "surface-container-lowest": "#000000",
+        "surface-tint": "#ffe792",
+        "on-surface": "#efdfff",
+        "on-surface-variant": "#b7a3cf",
+        "on-background": "#efdfff",
+        "background": "#150629",
+        "primary": "#ffe792",
+        "primary-fixed": "#ffd709",
+        "primary-container": "#ffd709",
+        "primary-dim": "#efc900",
+        "on-primary": "#655400",
+        "on-primary-container": "#5b4b00",
+        "on-primary-fixed": "#453900",
+        "on-primary-fixed-variant": "#665500",
+        "primary-fixed-dim": "#efc900",
+        "secondary": "#ff6c8f",
+        "secondary-container": "#bc004d",
+        "secondary-fixed": "#ffc2cb",
+        "secondary-fixed-dim": "#ffadbb",
+        "secondary-dim": "#e21461",
+        "on-secondary": "#480019",
+        "on-secondary-container": "#fff6f5",
+        "on-secondary-fixed": "#6e002a",
+        "on-secondary-fixed-variant": "#a30041",
+        "tertiary": "#c47fff",
+        "tertiary-container": "#9d05ff",
+        "tertiary-fixed": "#d199ff",
+        "tertiary-fixed-dim": "#c787ff",
+        "tertiary-dim": "#a533ff",
+        "on-tertiary": "#340059",
+        "on-tertiary-container": "#ffffff",
+        "on-tertiary-fixed": "#280047",
+        "on-tertiary-fixed-variant": "#580092",
+        "inverse-surface": "#fff7ff",
+        "inverse-on-surface": "#5e4e74",
+        "inverse-primary": "#705e00",
+        "outline": "#806e96",
+        "outline-variant": "#514166",
+        "error": "#ff7351",
+        "error-container": "#b92902",
+        "error-dim": "#d53d18",
+        "on-error": "#450900",
+        "on-error-container": "#ffd2c8"
+      },
+      fontFamily: {
+        "headline": ["Space Grotesk"],
+        "body": ["Plus Jakarta Sans"],
+        "label": ["Plus Jakarta Sans"]
+      },
+      borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+      animation: {
+        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+        'float': 'float 3s ease-in-out infinite',
+        'shimmer': 'shimmer 3s ease-in-out infinite',
+        'fadeInUp': 'fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both',
+        'fadeInScale': 'fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'bounceIn': 'bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'shake': 'shake 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        'coinRain': 'coinRain 4s linear infinite',
+        'glowPulse': 'glowPulse 2s ease-in-out infinite',
+        'resultPop': 'resultPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'confettiFall': 'confettiFall 2.5s ease-out forwards',
+        'reelSpin': 'reelSpin 0.1s steps(1) infinite',
+        'winPulse': 'winPulse 0.5s ease-in-out infinite',
+      },
+      keyframes: {
+        'pulse-glow': {
+          '0%, 100%': { opacity: 1, filter: 'brightness(1) drop-shadow(0 0 10px #ffe792)' },
+          '50%': { opacity: 0.8, filter: 'brightness(1.5) drop-shadow(0 0 25px #ffe792)' },
+        },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        'shimmer': {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        'fadeInUp': {
+          from: { opacity: 0, transform: 'translateY(24px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+        },
+        'fadeInScale': {
+          from: { opacity: 0, transform: 'scale(0.88)' },
+          to: { opacity: 1, transform: 'scale(1)' },
+        },
+        'bounceIn': {
+          '0%': { opacity: 0, transform: 'scale(0.3)' },
+          '50%': { opacity: 1, transform: 'scale(1.05)' },
+          '70%': { transform: 'scale(0.9)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        'shake': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '20%': { transform: 'translateX(-6px)' },
+          '40%': { transform: 'translateX(6px)' },
+          '60%': { transform: 'translateX(-4px)' },
+          '80%': { transform: 'translateX(4px)' },
+        },
+        'coinRain': {
+          '0%': { transform: 'translateY(-20vh) rotate(0deg)', opacity: 0 },
+          '10%': { opacity: 1 },
+          '90%': { opacity: 1 },
+          '100%': { transform: 'translateY(110vh) rotate(360deg)', opacity: 0 },
+        },
+        'glowPulse': {
+          '0%, 100%': { boxShadow: '0 0 20px rgba(255, 231, 146, 0.3)' },
+          '50%': { boxShadow: '0 0 40px rgba(255, 231, 146, 0.5), 0 0 60px rgba(255, 215, 9, 0.3)' },
+        },
+        'resultPop': {
+          '0%': { transform: 'scale(0) rotate(-20deg)', opacity: 0 },
+          '60%': { transform: 'scale(1.2) rotate(5deg)' },
+          '80%': { transform: 'scale(0.95) rotate(-2deg)' },
+          '100%': { transform: 'scale(1) rotate(0deg)', opacity: 1 },
+        },
+        'confettiFall': {
+          '0%': { transform: 'translateY(-100vh) rotate(0deg)', opacity: 1 },
+          '100%': { transform: 'translateY(100vh) rotate(720deg)', opacity: 0 },
+        },
+        'reelSpin': {
+          from: { transform: 'translateY(-100%)' },
+          to: { transform: 'translateY(0)' },
+        },
+        'winPulse': {
+          '0%, 100%': { transform: 'scale(1)', filter: 'brightness(1)' },
+          '50%': { transform: 'scale(1.1)', filter: 'brightness(1.5)' },
+        },
+      }
+    },
+  },
+}
+</script>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  body { min-height: 100dvh; overflow: hidden; }
+  .neon-glow-primary {
+    text-shadow: 0 0 10px rgba(255, 231, 146, 0.8), 0 0 20px rgba(255, 231, 146, 0.4);
+  }
+  .neon-glow-text-gold {
+    color: #ffe792;
+    text-shadow: 0 0 10px rgba(255, 231, 146, 0.8), 0 0 25px rgba(255, 231, 146, 0.5), 0 0 50px rgba(255, 215, 9, 0.3);
+  }
+  .slot-gradient {
+    background: linear-gradient(180deg, #1b0a31 0%, #301a4d 50%, #1b0a31 100%);
+  }
+  .glossy-overlay {
+    background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.25) 100%);
+  }
+  .glass-panel {
+    background: linear-gradient(135deg, rgba(48, 26, 77, 0.4) 0%, rgba(27, 10, 49, 0.6) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(196, 127, 255, 0.15);
+  }
+  .particle {
+    position: absolute;
+    pointer-events: none;
+  }
+  .btn-premium {
+    background: linear-gradient(135deg, #ffe792, #ffd709);
+    box-shadow: 0 4px 20px rgba(255, 231, 146, 0.4);
+    transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    position: relative;
+  }
+  .btn-premium::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  .btn-premium:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 8px 30px rgba(255, 231, 146, 0.5);
+  }
+  .btn-premium:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+  }
+  .btn-premium:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Reel styles */
+  .reel-window {
+    height: 110px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 8px;
+  }
+  .reel-strip {
+    transition: transform 0.05s steps(1);
+  }
+  .reel-strip.spinning {
+    animation: reelSpin 0.08s steps(1) infinite;
+  }
+  .reel-strip.stopping {
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reel-symbol {
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 900;
+    font-size: 72px;
+    line-height: 110px;
+  }
+
+  /* Payline */
+  .payline {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(255,231,146,0.6), transparent);
+    z-index: 30;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  /* Win effect */
+  .reel-win {
+    animation: winPulse 0.4s ease-in-out infinite;
+    filter: drop-shadow(0 0 20px rgba(255, 231, 146, 0.8));
+  }
+
+  @keyframes reelSpin {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes shimmer {
+    0% { backgroundPosition: '-200% 0' }
+    100% { backgroundPosition: '200% 0' }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.88); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes bounceIn {
+    '0%': { opacity: 0; transform: scale(0.3); }
+    '50%': { opacity: 1; transform: scale(1.05); }
+    '70%': { transform: scale(0.9); }
+    '100%': { transform: scale(1); }
+  }
+  @keyframes shake {
+    '0%, 100%': { transform: translateX(0); }
+    '20%': { transform: translateX(-6px); }
+    '40%': { transform: translateX(6px); }
+    '60%': { transform: translateX(-4px); }
+    '80%': { transform: translateX(4px); }
+  }
+  @keyframes coinRain {
+    '0%': { transform: translateY(-20vh) rotate(0deg); opacity: 0; }
+    '10%': { opacity: 1; }
+    '90%': { opacity: 1; }
+    '100%': { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+  }
+  @keyframes glowPulse {
+    '0%, 100%': { box-shadow: 0 0 20px rgba(255, 231, 146, 0.3); }
+    '50%': { box-shadow: 0 0 40px rgba(255, 231, 146, 0.5), 0 0 60px rgba(255, 215, 9, 0.3); }
+  }
+  @keyframes resultPop {
+    '0%': { transform: scale(0) rotate(-20deg); opacity: 0; }
+    '60%': { transform: scale(1.2) rotate(5deg); }
+    '80%': { transform: scale(0.95) rotate(-2deg); }
+    '100%': { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  @keyframes confettiFall {
+    '0%': { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+    '100%': { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+  @keyframes winPulse {
+    '0%, 100%': { transform: scale(1); filter: brightness(1); }
+    '50%': { transform: scale(1.08); filter: brightness(1.4); }
+  }
+
+  .stagger-1 { animation-delay: 0ms; }
+  .stagger-2 { animation-delay: 80ms; }
+  .stagger-3 { animation-delay: 160ms; }
+  .stagger-4 { animation-delay: 240ms; }
+  .stagger-5 { animation-delay: 320ms; }
+  .stagger-6 { animation-delay: 400ms; }
+</style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-tertiary/30 overflow-hidden">
+
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-5 h-16 bg-[#1b0a31]/90 backdrop-blur-xl" style="padding-top: env(safe-area-inset-top); box-shadow: 0 4px 20px rgba(196,127,255,0.15)">
+  <div class="flex items-center gap-3">
+    <span class="material-symbols-outlined text-[#ffe792] text-xl" style="font-variation-settings:'FILL'1">casino</span>
+    <h1 class="text-xl font-black text-[#ffe792] drop-shadow-[0_0_8px_rgba(255,231,146,0.5)] font-headline tracking-tighter uppercase">777 ROYALE</h1>
+  </div>
+  <div class="flex items-center gap-2 bg-surface-container-highest px-4 py-2 rounded-full border border-outline-variant/30">
+    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings:'FILL'1">stars</span>
+    <span class="font-headline font-bold text-primary text-sm" id="spins-display">3</span>
+    <span class="text-xs text-on-surface-variant font-label">lượt</span>
+  </div>
+</header>
+
+<main class="relative h-screen flex flex-col items-center justify-center pt-16 pb-24 px-4 overflow-hidden">
+
+  <!-- Background Ambient Effects -->
+  <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-tertiary/10 blur-[120px] rounded-full"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-secondary/10 blur-[150px] rounded-full"></div>
+  </div>
+
+  <!-- Raining Particles (only during spin) -->
+  <div id="coin-rain" class="absolute inset-0 pointer-events-none overflow-hidden z-20" style="display:none">
+    <div class="particle animate-coinRain" style="left: 10%; animation-delay: 0s;">
+      <span class="material-symbols-outlined text-2xl text-[#ffd709]" style="font-variation-settings:'FILL'1">circle</span>
+    </div>
+    <div class="particle animate-coinRain" style="left: 25%; animation-delay: 1.5s;">
+      <span class="material-symbols-outlined text-xl text-[#ff6c8f]" style="font-variation-settings:'FILL'1">star</span>
+    </div>
+    <div class="particle animate-coinRain" style="left: 45%; animation-delay: 0.5s;">
+      <span class="material-symbols-outlined text-3xl text-[#ffd709]" style="font-variation-settings:'FILL'1">monetization_on</span>
+    </div>
+    <div class="particle animate-coinRain" style="left: 65%; animation-delay: 2.2s;">
+      <span class="material-symbols-outlined text-lg text-[#c47fff]" style="font-variation-settings:'FILL'1">auto_awesome</span>
+    </div>
+    <div class="particle animate-coinRain" style="left: 85%; animation-delay: 1s;">
+      <span class="material-symbols-outlined text-2xl text-[#ffd709]" style="font-variation-settings:'FILL'1">stars</span>
+    </div>
+    <div class="particle animate-coinRain" style="left: 5%; animation-delay: 3s;">
+      <span class="material-symbols-outlined text-xl text-[#ff6c8f]" style="font-variation-settings:'FILL'1">favorite</span>
+    </div>
+    <div class="particle animate-coinRain" style="left: 55%; animation-delay: 1.8s;">
+      <span class="material-symbols-outlined text-2xl text-[#ffd709]" style="font-variation-settings:'FILL'1">monetization_on</span>
+    </div>
+    <div class="particle animate-coinRain" style="left: 95%; animation-delay: 0.8s;">
+      <span class="material-symbols-outlined text-xl text-[#ffd709]" style="font-variation-settings:'FILL'1">star</span>
+    </div>
+  </div>
+
+  <!-- Screen: Game -->
+  <div id="screen-game" class="relative z-10 w-full max-w-md flex flex-col items-center gap-4">
+
+    <!-- Spins Left Badge -->
+    <div class="glass-panel px-5 py-2 rounded-full border border-outline-variant/20 animate-fadeInUp stagger-1 flex items-center gap-3">
+      <span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings:'FILL'1">refresh</span>
+      <span class="font-headline font-bold text-primary">Còn <span id="spins-left">3</span> lượt quay</span>
+    </div>
+
+    <!-- Jackpot Banner -->
+    <div class="relative z-10 w-full glass-panel rounded-xl overflow-hidden shadow-[0_0_30px_rgba(196,127,255,0.1)] animate-fadeInUp stagger-2">
+      <div class="bg-[#bc004d] py-1 px-4 text-center">
+        <span class="text-[10px] uppercase tracking-[0.3em] font-bold text-[#fff6f5]">Progressive Jackpot</span>
+      </div>
+      <div class="py-3 px-6 text-center">
+        <span id="jackpot-display" class="text-4xl font-headline font-extrabold tracking-tighter text-primary neon-glow-text-gold">
+          1,000,000đ
+        </span>
+      </div>
+      <div class="h-1 w-full bg-surface-container-highest relative">
+        <div id="jackpot-bar" class="absolute top-0 left-0 h-full w-1/3 bg-gradient-to-r from-tertiary to-secondary" style="box-shadow: 0 0 10px #ff6c8f; transition: width 1s ease"></div>
+      </div>
+    </div>
+
+    <!-- Slot Machine Chassis -->
+    <div class="relative z-10 w-full bg-surface-container-low p-4 rounded-xl shadow-2xl animate-fadeInUp stagger-3" style="box-shadow: 0 0 40px rgba(48,26,77,0.8)">
+
+      <!-- Machine Header LEDs -->
+      <div class="flex justify-between items-center mb-3 px-2">
+        <div class="flex gap-1">
+          <div class="w-2 h-2 rounded-full bg-secondary" style="box-shadow: 0 0 5px #ff6c8f"></div>
+          <div class="w-2 h-2 rounded-full bg-primary" style="box-shadow: 0 0 5px #ffd709"></div>
+          <div class="w-2 h-2 rounded-full bg-tertiary" style="box-shadow: 0 0 5px #c47fff"></div>
+        </div>
+        <span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">High Roller</span>
+        <div class="flex gap-1">
+          <div class="w-2 h-2 rounded-full bg-tertiary" style="box-shadow: 0 0 5px #c47fff"></div>
+          <div class="w-2 h-2 rounded-full bg-primary" style="box-shadow: 0 0 5px #ffd709"></div>
+          <div class="w-2 h-2 rounded-full bg-secondary" style="box-shadow: 0 0 5px #ff6c8f"></div>
+        </div>
+      </div>
+
+      <!-- Reels Area -->
+      <div id="reels-container" class="grid grid-cols-3 gap-3 bg-[#000000] rounded-lg p-2 relative overflow-hidden" style="box-shadow: inset 0 0 40px rgba(0,0,0,0.8)">
+        <!-- Inner Bezel -->
+        <div class="absolute inset-0 pointer-events-none z-20 border-[12px] border-surface-container-low rounded-lg" style="box-shadow: inset 0 0 40px rgba(0,0,0,0.8)"></div>
+
+        <!-- Reel 1 -->
+        <div class="reel-window bg-[#0a0014] rounded relative flex items-center justify-center">
+          <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
+          <div id="reel1-strip" class="reel-strip flex flex-col">
+            <div class="reel-symbol text-secondary" style="text-shadow: 0 0 15px rgba(255,108,143,0.6)">7</div>
+          </div>
+          <div id="reel1-shadow-top" class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none"></div>
+          <div id="reel1-shadow-bottom" class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/80 to-transparent z-10 pointer-events-none"></div>
+        </div>
+
+        <!-- Reel 2 -->
+        <div class="reel-window bg-[#0a0014] rounded relative flex items-center justify-center">
+          <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
+          <div id="reel2-strip" class="reel-strip flex flex-col">
+            <div class="reel-symbol text-secondary" style="text-shadow: 0 0 15px rgba(255,108,143,0.6)">7</div>
+          </div>
+          <div id="reel2-shadow-top" class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none"></div>
+          <div id="reel2-shadow-bottom" class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/80 to-transparent z-10 pointer-events-none"></div>
+        </div>
+
+        <!-- Reel 3 -->
+        <div class="reel-window bg-[#0a0014] rounded relative flex items-center justify-center">
+          <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
+          <div id="reel3-strip" class="reel-strip flex flex-col">
+            <div class="reel-symbol text-secondary" style="text-shadow: 0 0 15px rgba(255,108,143,0.6)">7</div>
+          </div>
+          <div id="reel3-shadow-top" class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none"></div>
+          <div id="reel3-shadow-bottom" class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/80 to-transparent z-10 pointer-events-none"></div>
+        </div>
+      </div>
+
+      <!-- Payline Indicator -->
+      <div class="payline"></div>
+
+      <!-- Betting Controls -->
+      <div class="mt-4 grid grid-cols-2 gap-4 items-end">
+        <div class="space-y-1">
+          <label class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Tổng cược</label>
+          <div class="flex items-center gap-2 bg-surface-container-highest rounded-lg p-2 border-b-2 border-primary/20">
+            <button id="btn-bet-minus" class="w-8 h-8 rounded bg-surface-variant flex items-center justify-center active:scale-90 transition-transform cursor-pointer" onclick="adjustBet(-1)">
+              <span class="material-symbols-outlined text-sm">remove</span>
+            </button>
+            <span id="bet-display" class="flex-1 text-center font-headline font-bold text-primary text-lg">10K</span>
+            <button id="btn-bet-plus" class="w-8 h-8 rounded bg-surface-variant flex items-center justify-center active:scale-90 transition-transform cursor-pointer" onclick="adjustBet(1)">
+              <span class="material-symbols-outlined text-sm">add</span>
+            </button>
+          </div>
+        </div>
+        <button id="btn-spin" class="btn-premium w-full h-14 rounded-xl font-headline font-black text-2xl uppercase tracking-widest relative overflow-hidden" onclick="spin()">
+          <span id="spin-text" class="relative z-10">QUAY!</span>
+          <div id="spin-spinner" class="spinner absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 border-2 border-[#655400]/30 border-t-[#655400] rounded-full" style="display:none; animation: spin 0.7s linear infinite"></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Last Win Display -->
+    <div id="last-win" class="glass-panel px-6 py-3 rounded-xl border border-outline-variant/20 animate-fadeInUp stagger-4" style="display:none">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-secondary text-xl" style="font-variation-settings:'FILL'1">celebration</span>
+        <div>
+          <p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Chiến thắng gần nhất</p>
+          <p id="last-win-amount" class="font-headline font-bold text-secondary text-lg">+100K</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Winners Panel -->
+    <div class="relative z-10 w-full glass-panel p-4 rounded-xl border border-outline-variant/20 animate-fadeInUp stagger-5">
+      <h3 class="text-[10px] uppercase tracking-[0.4em] font-bold text-tertiary mb-3 text-center">Người chiến thắng gần đây</h3>
+      <div class="space-y-2">
+        <div class="bg-surface-container-low/40 backdrop-blur-sm rounded-lg p-3 flex justify-between items-center border-l-4 border-secondary">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant">
+              <div class="w-full h-full bg-gradient-to-br from-[#ffd709] to-[#ff6c8f] flex items-center justify-center text-xs">👑</div>
+            </div>
+            <div>
+              <p class="text-xs font-bold">LuckyStar_99</p>
+              <p class="text-[10px] text-on-surface-variant">Vừa xong</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-sm font-headline font-bold text-secondary">+500K</p>
+          </div>
+        </div>
+        <div class="bg-surface-container-low/40 backdrop-blur-sm rounded-lg p-3 flex justify-between items-center opacity-70">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant">
+              <div class="w-full h-full bg-gradient-to-br from-[#c47fff] to-[#ffd709] flex items-center justify-center text-xs">🎰</div>
+            </div>
+            <div>
+              <p class="text-xs font-bold">NeonKing_22</p>
+              <p class="text-[10px] text-on-surface-variant">2 phút trước</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-sm font-headline font-bold text-tertiary">+200K</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Screen: No Spins Left -->
+  <div id="screen-nospins" class="relative z-10 w-full max-w-md flex flex-col items-center gap-4" style="display:none">
+    <div class="glass-panel p-8 rounded-xl border border-outline-variant/20 text-center">
+      <div class="text-5xl mb-4 animate-float">😢</div>
+      <h2 class="text-2xl font-headline font-bold text-on-surface mb-2">Hết lượt quay!</h2>
+      <p class="text-on-surface-variant mb-6">Bạn đã dùng hết 3 lượt quay của mình. Cảm ơn đã chơi!</p>
+      <button class="btn-premium w-full py-4 rounded-xl font-headline font-bold text-on-primary text-lg" onclick="goHome()">
+        Quay về trang chủ
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-[#1b0a31]/95 backdrop-blur-xl rounded-t-[2rem]" style="box-shadow: 0 -10px 40px rgba(21,6,41,0.8)">
+  <a class="flex flex-col items-center justify-center bg-[#ff6c8f] text-[#150629] rounded-full px-6 py-2" style="box-shadow: 0 0 20px rgba(255,108,143,0.6)" href="#" onclick="goHome()">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL'1">home</span>
+    <span class="font-body text-[11px] font-bold uppercase tracking-widest mt-1">Trang chủ</span>
+  </a>
+  <a class="flex flex-col items-center justify-center text-[#b7a3cf] opacity-70 hover:opacity-100 hover:text-[#c47fff] transition-all" href="#">
+    <span class="material-symbols-outlined">history</span>
+    <span class="font-body text-[11px] font-bold uppercase tracking-widest mt-1">Lịch sử</span>
+  </a>
+  <a class="flex flex-col items-center justify-center text-[#b7a3cf] opacity-70 hover:opacity-100 hover:text-[#c47fff] transition-all" href="#">
+    <span class="material-symbols-outlined">info</span>
+    <span class="font-body text-[11px] font-bold uppercase tracking-widest mt-1">Thông tin</span>
+  </a>
+</nav>
+
+<script>
+  // === Game State ===
+  const state = {
+    spinsLeft: parseInt(sessionStorage.getItem('spinsLeft') || '3'),
+    isSpinning: false,
+    bet: 10,
+    betOptions: [5, 10, 20, 50, 100],
+    betIndex: 1,
+    reelValues: [7, 7, 7],
+    spinHistory: []
+  };
+
+  // Prize pool: matching number → reward multiplier
+  const PRIZES = {
+    0: 0, 1: 0, 2: 0, 3: 50,   // 0-2 = lose, 3 = 50K
+    4: 100, 5: 100, 6: 200,     // 4-5 = 100K, 6 = 200K
+    7: 500,                      // 7 = 500K (Jackpot!)
+    8: 100, 9: 100              // 8-9 = 100K
+  };
+
+  const PRIZE_NAMES = {
+    0: 'Ghê quá!', 1: 'Chưa trúng!', 2: 'Lần sau nhé!',
+    3: 'Trúng 50K', 4: 'Trúng 100K', 5: 'Trúng 100K',
+    6: 'Trúng 200K', 7: '🎉 JACKPOT 500K! 🎉', 8: 'Trúng 100K', 9: 'Trúng 100K'
+  };
+
+  // === DOM Elements ===
+  const reelStrips = [
+    document.getElementById('reel1-strip'),
+    document.getElementById('reel2-strip'),
+    document.getElementById('reel3-strip')
+  ];
+  const reelWindows = document.querySelectorAll('.reel-window');
+  const btnSpin = document.getElementById('btn-spin');
+  const spinText = document.getElementById('spin-text');
+  const spinSpinner = document.getElementById('spin-spinner');
+  const spinsLeft = document.getElementById('spins-left');
+  const spinsDisplay = document.getElementById('spins-display');
+  const betDisplay = document.getElementById('bet-display');
+  const lastWin = document.getElementById('last-win');
+  const lastWinAmount = document.getElementById('last-win-amount');
+  const screenGame = document.getElementById('screen-game');
+  const screenNoSpins = document.getElementById('screen-nospins');
+  const coinRain = document.getElementById('coin-rain');
+
+  // === Init ===
+  function init() {
+    // Check session
+    if (!sessionStorage.getItem('userPhone')) {
+      window.location.href = 'login.html';
+      return;
+    }
+    spinsLeft.textContent = state.spinsLeft;
+    spinsDisplay.textContent = state.spinsLeft;
+    updateUI();
+  }
+
+  function updateUI() {
+    if (state.spinsLeft <= 0) {
+      screenGame.style.display = 'none';
+      screenNoSpins.style.display = 'flex';
+    } else {
+      screenGame.style.display = 'flex';
+      screenNoSpins.style.display = 'none';
+    }
+  }
+
+  function adjustBet(dir) {
+    state.betIndex = Math.max(0, Math.min(state.betOptions.length - 1, state.betIndex + dir));
+    state.bet = state.betOptions[state.betIndex];
+    betDisplay.textContent = state.bet + 'K';
+  }
+
+  // === Reel Spinning Logic ===
+  const SYMBOLS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+  function buildReelStrip(symbol) {
+    // Build a strip with the symbol in the middle, random symbols above/below
+    const strip = document.createElement('div');
+    strip.className = 'reel-strip flex flex-col';
+
+    // Top symbols (off-screen)
+    for (let i = 0; i < 3; i++) {
+      const d = document.createElement('div');
+      d.className = 'reel-symbol text-on-surface/30';
+      d.style.fontSize = '48px';
+      d.style.lineHeight = '110px';
+      d.textContent = SYMBOLS[Math.floor(Math.random() * 10)];
+      strip.appendChild(d);
+    }
+
+    // Visible symbol
+    const visible = document.createElement('div');
+    visible.className = 'reel-symbol text-secondary';
+    visible.style.textShadow = '0 0 15px rgba(255,108,143,0.6)';
+    visible.id = 'reel-visible';
+    visible.textContent = symbol;
+    strip.appendChild(visible);
+
+    // Bottom symbols (off-screen)
+    for (let i = 0; i < 3; i++) {
+      const d = document.createElement('div');
+      d.className = 'reel-symbol text-on-surface/30';
+      d.style.fontSize = '48px';
+      d.style.lineHeight = '110px';
+      d.textContent = SYMBOLS[Math.floor(Math.random() * 10)];
+      strip.appendChild(d);
+    }
+
+    return strip;
+  }
+
+  let spinIntervals = [];
+
+  function startReelSpin(reelIndex) {
+    const strip = reelStrips[reelIndex];
+    strip.classList.add('spinning');
+    strip.style.transform = 'translateY(0)';
+
+    let pos = 0;
+    const stripHeight = 110; // px per symbol
+    const totalSymbols = 7; // 3 + 1 + 3
+
+    const interval = setInterval(() => {
+      pos = (pos + 1) % totalSymbols;
+      strip.style.transform = `translateY(-${pos * stripHeight}px)`;
+    }, 80);
+
+    spinIntervals.push({ reelIndex, interval });
+  }
+
+  function stopReelSpin(reelIndex, finalSymbol, onComplete) {
+    const { interval } = spinIntervals.find(s => s.reelIndex === reelIndex);
+    clearInterval(interval);
+
+    const strip = reelStrips[reelIndex];
+    strip.classList.remove('spinning');
+    strip.classList.add('stopping');
+
+    // Rebuild strip with final symbol
+    const stripHeight = 110;
+    const totalSymbols = 7;
+
+    // Rebuild with final symbol centered
+    const newStrip = document.createElement('div');
+    newStrip.className = 'reel-strip flex flex-col stopping';
+
+    // Top
+    for (let i = 0; i < 3; i++) {
+      const d = document.createElement('div');
+      d.className = 'reel-symbol text-on-surface/30';
+      d.style.fontSize = '48px';
+      d.style.lineHeight = '110px';
+      d.textContent = SYMBOLS[Math.floor(Math.random() * 10)];
+      newStrip.appendChild(d);
+    }
+
+    // Center (final)
+    const visible = document.createElement('div');
+    visible.className = 'reel-symbol text-secondary';
+    visible.style.textShadow = '0 0 15px rgba(255,108,143,0.6)';
+    visible.textContent = finalSymbol;
+    newStrip.appendChild(visible);
+
+    // Bottom
+    for (let i = 0; i < 3; i++) {
+      const d = document.createElement('div');
+      d.className = 'reel-symbol text-on-surface/30';
+      d.style.fontSize = '48px';
+      d.style.lineHeight = '110px';
+      d.textContent = SYMBOLS[Math.floor(Math.random() * 10)];
+      newStrip.appendChild(d);
+    }
+
+    // Animate to center
+    newStrip.style.transition = 'none';
+    newStrip.style.transform = `translateY(-${4 * stripHeight}px)`;
+
+    reelStrips[reelIndex].replaceWith(newStrip);
+    reelStrips[reelIndex] = newStrip;
+
+    // Snap to final position
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        newStrip.style.transition = `transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)`;
+        newStrip.style.transform = `translateY(-${3 * stripHeight}px)`;
+
+        setTimeout(() => {
+          newStrip.classList.remove('stopping');
+          if (onComplete) onComplete();
+        }, 650);
+      });
+    });
+  }
+
+  // === Main Spin ===
+  async function spin() {
+    if (state.isSpinning) return;
+    if (state.spinsLeft <= 0) {
+      updateUI();
+      return;
+    }
+
+    state.isSpinning = true;
+    state.spinHistory = [];
+
+    // Update UI
+    spinText.style.display = 'none';
+    spinSpinner.style.display = 'block';
+    btnSpin.disabled = true;
+    coinRain.style.display = 'block';
+
+    // Generate final values
+    const finalValues = [
+      Math.floor(Math.random() * 10),
+      Math.floor(Math.random() * 10),
+      Math.floor(Math.random() * 10)
+    ];
+    state.reelValues = finalValues;
+
+    // Start all reels spinning
+    startReelSpin(0);
+    startReelSpin(1);
+    startReelSpin(2);
+
+    // Stop reels one by one with delays
+    const isWin = finalValues[0] === finalValues[1] && finalValues[1] === finalValues[2];
+
+    // Stop reel 1
+    setTimeout(() => stopReelSpin(0, finalValues[0], () => {
+      state.spinHistory.push(finalValues[0]);
+    }), 800);
+
+    // Stop reel 2
+    setTimeout(() => stopReelSpin(1, finalValues[1], () => {
+      state.spinHistory.push(finalValues[1]);
+    }), 1600);
+
+    // Stop reel 3 (last)
+    setTimeout(() => stopReelSpin(2, finalValues[2], async () => {
+      state.spinHistory.push(finalValues[2]);
+
+      // All stopped
+      await new Promise(r => setTimeout(r, 400));
+
+      // Hide coin rain
+      coinRain.style.display = 'none';
+
+      // Check win
+      const won = finalValues[0] === finalValues[1] && finalValues[1] === finalValues[2];
+      const winAmount = won ? (PRIZES[finalValues[0]] * state.bet / 10) : 0;
+
+      // Decrement spins
+      state.spinsLeft--;
+      sessionStorage.setItem('spinsLeft', state.spinsLeft);
+      spinsLeft.textContent = state.spinsLeft;
+      spinsDisplay.textContent = state.spinsLeft;
+
+      // Save to NocoDB
+      await saveSpinResult(finalValues, won, winAmount);
+
+      // Win animation
+      if (won) {
+        triggerWinEffect();
+        await new Promise(r => setTimeout(r, 2000));
+      }
+
+      // Show last win
+      if (winAmount > 0) {
+        lastWin.style.display = 'flex';
+        lastWinAmount.textContent = '+' + winAmount + 'K';
+        lastWinAmount.className = 'font-headline font-bold ' + (winAmount >= 500 ? 'text-primary' : 'text-secondary') + ' text-lg';
+      }
+
+      // Save result to session
+      sessionStorage.setItem('lastReels', JSON.stringify(finalValues));
+      sessionStorage.setItem('lastWin', won);
+      sessionStorage.setItem('lastWinAmount', winAmount);
+
+      // Reset spin button
+      state.isSpinning = false;
+      spinText.style.display = 'block';
+      spinSpinner.style.display = 'none';
+      btnSpin.disabled = false;
+
+      // If no spins left, go to result screen
+      if (state.spinsLeft <= 0) {
+        await new Promise(r => setTimeout(r, 1000));
+        window.location.href = 'result.html';
+      }
+    }), 2400);
+  }
+
+  function triggerWinEffect() {
+    // Add glow to winning reels
+    reelStrips.forEach(strip => {
+      const visible = strip.querySelector('#reel-visible') || strip.querySelector('.reel-symbol');
+      if (visible) {
+        visible.style.color = '#ffd709';
+        visible.style.textShadow = '0 0 30px rgba(255,215,9,0.9), 0 0 60px rgba(255,215,9,0.5)';
+        visible.classList.add('reel-win');
+      }
+    });
+
+    // Screen flash
+    document.body.style.animation = 'none';
+    document.body.style.transition = 'none';
+    document.body.style.backgroundColor = '#ffd709';
+    setTimeout(() => {
+      document.body.style.transition = 'background-color 0.5s ease';
+      document.body.style.backgroundColor = '#150629';
+    }, 150);
+  }
+
+  async function saveSpinResult(values, won, winAmount) {
+    const leadId = sessionStorage.getItem('leadId');
+    if (!leadId) return;
+
+    try {
+      const nocoToken = localStorage.getItem('NOCO_TOKEN');
+      const nocoUrl = localStorage.getItem('NOCO_URL');
+      if (!nocoToken || !nocoUrl) return;
+
+      await fetch(`${nocoUrl}/api/v1/db/data/v1/jackpot_777/spin_results`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'xc-token': nocoToken
+        },
+        body: JSON.stringify({
+          lead_id: parseInt(leadId),
+          phone: sessionStorage.getItem('userPhone'),
+          reel1: values[0],
+          reel2: values[1],
+          reel3: values[2],
+          is_win: won,
+          win_amount: winAmount,
+          bet: state.bet,
+          spins_remaining: state.spinsLeft,
+          prize_name: won ? PRIZE_NAMES[values[0]] : 'Không trúng',
+          created_at: new Date().toISOString()
+        })
+      });
+    } catch (e) {
+      console.warn('NocoDB save failed:', e);
+    }
+  }
+
+  function goHome() {
+    window.location.href = 'login.html';
+  }
+
+  init();
+</script>
+</body>
+</html>
