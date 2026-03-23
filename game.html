@@ -210,46 +210,6 @@ tailwind.config = {
     cursor: not-allowed;
   }
 
-  /* Reel styles */
-  .reel-window {
-    height: 110px;
-    overflow: hidden;
-    position: relative;
-    border-radius: 8px;
-    background: #0a0014;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .reel-strip {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    align-items: center;
-  }
-  .reel-symbol {
-    height: 110px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 900;
-    font-size: 72px;
-    line-height: 110px;
-    text-align: center;
-    transition: color 0.15s, text-shadow 0.15s;
-  }
-  .reel-symbol.is-center {
-    color: #ff6c8f;
-    text-shadow: 0 0 15px rgba(255,108,143,0.7), 0 0 30px rgba(255,108,143,0.4);
-    font-size: 76px;
-  }
-  .reel-symbol.is-fading {
-    color: rgba(255, 100, 140, 0.25);
-    font-size: 60px;
-    filter: blur(1px);
-  }
 
   /* Payline */
   .payline {
@@ -426,34 +386,27 @@ tailwind.config = {
         <!-- Inner Bezel -->
         <div class="absolute inset-0 pointer-events-none z-20 border-[12px] border-surface-container-low rounded-lg" style="box-shadow: inset 0 0 40px rgba(0,0,0,0.8)"></div>
 
-        <!-- Reel 1 -->
-        <div class="reel-window bg-[#0a0014] rounded relative flex items-center justify-center overflow-hidden">
-          <!-- Scrolling strip -->
-          <div id="reel1-strip" class="reel-strip flex flex-col" style="transition: transform 0s">
-            <!-- Symbols injected by JS -->
-          </div>
-          <!-- Shadow overlays -->
-          <div class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/90 to-transparent z-10 pointer-events-none"></div>
-          <div class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/90 to-transparent z-10 pointer-events-none"></div>
-          <!-- Glossy -->
+        <!-- Reel 1 — Canvas -->
+        <div class="reel-window bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
+          <canvas id="reel-canvas-0" width="110" height="110" class="w-full h-full"></canvas>
+          <div class="absolute top-0 left-0 w-full h-[35px] bg-gradient-to-b from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
+          <div class="absolute bottom-0 left-0 w-full h-[35px] bg-gradient-to-t from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
           <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
         </div>
 
-        <!-- Reel 2 -->
-        <div class="reel-window bg-[#0a0014] rounded relative flex items-center justify-center overflow-hidden">
-          <div id="reel2-strip" class="reel-strip flex flex-col" style="transition: transform 0s">
-          </div>
-          <div class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/90 to-transparent z-10 pointer-events-none"></div>
-          <div class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/90 to-transparent z-10 pointer-events-none"></div>
+        <!-- Reel 2 — Canvas -->
+        <div class="reel-window bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
+          <canvas id="reel-canvas-1" width="110" height="110" class="w-full h-full"></canvas>
+          <div class="absolute top-0 left-0 w-full h-[35px] bg-gradient-to-b from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
+          <div class="absolute bottom-0 left-0 w-full h-[35px] bg-gradient-to-t from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
           <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
         </div>
 
-        <!-- Reel 3 -->
-        <div class="reel-window bg-[#0a0014] rounded relative flex items-center justify-center overflow-hidden">
-          <div id="reel3-strip" class="reel-strip flex flex-col" style="transition: transform 0s">
-          </div>
-          <div class="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/90 to-transparent z-10 pointer-events-none"></div>
-          <div class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/90 to-transparent z-10 pointer-events-none"></div>
+        <!-- Reel 3 — Canvas -->
+        <div class="reel-window bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
+          <canvas id="reel-canvas-2" width="110" height="110" class="w-full h-full"></canvas>
+          <div class="absolute top-0 left-0 w-full h-[35px] bg-gradient-to-b from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
+          <div class="absolute bottom-0 left-0 w-full h-[35px] bg-gradient-to-t from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
           <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
         </div>
       </div>
@@ -572,140 +525,213 @@ tailwind.config = {
   };
 
   const SYMBOLS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-  const H = 110; // reel row height in px
-  const N = 7;   // rows visible in strip (always odd)
-  const CENTER = Math.floor(N / 2); // = 3, index of center row
-  const SPIN_MS = 160; // how fast numbers change — higher = slower
+  const H = 110;  // canvas height = reel row height
+  const W = 110;  // canvas width
+  const N = 7;    // total symbols in the spinning strip (odd number)
+  const CENTER_IDX = 3; // index of the visible center row in the strip array
+  const SPIN_SPEED = 150; // ms — how fast the strip scrolls
 
   const PRIZES = { 0:0,1:0,2:0,3:50,4:100,5:100,6:200,7:500,8:100,9:100 };
 
-  // === DOM ===
-  let strips = [
-    document.getElementById('reel1-strip'),
-    document.getElementById('reel2-strip'),
-    document.getElementById('reel3-strip')
-  ];
+  // === DOM refs ===
   const btnSpin  = document.getElementById('btn-spin');
-  const spinTxt = document.getElementById('spin-text');
-  const spinSpn = document.getElementById('spin-spinner');
-  const spLeft  = document.getElementById('spins-left');
-  const spDisp  = document.getElementById('spins-display');
-  const betDisp = document.getElementById('bet-display');
-  const lastWin = document.getElementById('last-win');
-  const lastAmt = document.getElementById('last-win-amount');
-  const scrGame = document.getElementById('screen-game');
-  const scrNone = document.getElementById('screen-nospins');
-  const coinRng = document.getElementById('coin-rain');
+  const spinTxt  = document.getElementById('spin-text');
+  const spinSpn  = document.getElementById('spin-spinner');
+  const spLeft   = document.getElementById('spins-left');
+  const spDisp   = document.getElementById('spins-display');
+  const betDisp  = document.getElementById('bet-display');
+  const lastWin  = document.getElementById('last-win');
+  const lastAmt  = document.getElementById('last-win-amount');
+  const scrGame  = document.getElementById('screen-game');
+  const scrNone  = document.getElementById('screen-nospins');
+  const coinRng  = document.getElementById('coin-rain');
 
-  // Per-reel runtime state
-  const R = [{v:7,spin:false,tid:null,cur:7},{v:7,spin:false,tid:null,cur:7},{v:7,spin:false,tid:null,cur:7}];
+  // === Canvas setup ===
+  const canvases = [
+    document.getElementById('reel-canvas-0'),
+    document.getElementById('reel-canvas-1'),
+    document.getElementById('reel-canvas-2')
+  ];
+  const ctxs = canvases.map(c => c.getContext('2d'));
 
-  // === Init ===
-  function init() {
-    if (!sessionStorage.getItem('userPhone')) { window.location.href='login.html'; return; }
-    spLeft.textContent = state.spinsLeft;
-    spDisp.textContent = state.spinsLeft;
-    updateUI();
-    for (let i=0;i<3;i++) renderStrip(i,R[i].cur);
-  }
+  // Per-reel state
+  const R = [
+    { spinning: false, animId: null, strip: [], offset: 0, cur: 7, final: 7, stopDone: false },
+    { spinning: false, animId: null, strip: [], offset: 0, cur: 7, final: 7, stopDone: false },
+    { spinning: false, animId: null, strip: [], offset: 0, cur: 7, final: 7, stopDone: false }
+  ];
 
-  function updateUI() {
-    scrGame.style.display = state.spinsLeft <= 0 ? 'none' : 'flex';
-    scrNone.style.display = state.spinsLeft <= 0 ? 'flex' : 'none';
-  }
-
-  function adjustBet(d) {
-    state.betIndex = Math.max(0, Math.min(state.betOptions.length-1, state.betIndex+d));
-    state.bet = state.betOptions[state.betIndex];
-    betDisp.textContent = state.bet+'K';
-  }
-
-  // === Build the visual strip for a reel ===
-  function renderStrip(i, centerValue, finalValue) {
-    const s = strips[i];
-    s.innerHTML = '';
-    const fv = finalValue !== undefined ? finalValue : centerValue;
-    for (let r=0;r<N;r++) {
-      const d = document.createElement('div');
-      d.className = 'reel-symbol';
-      d.style.height = H+'px';
-      d.style.lineHeight = H+'px';
-      d.style.fontFamily = 'Space Grotesk,sans-serif';
-      d.style.fontWeight = '900';
-      d.style.textAlign = 'center';
-      d.style.userSelect = 'none';
-      d.style.position = 'relative';
-
-      if (r === CENTER) {
-        // Center row — the winning number
-        d.textContent = fv;
-        d.classList.add('is-center');
-      } else {
-        // Fading rows
-        const dist = Math.min(Math.abs(r-CENTER), N-abs(r-CENTER));
-        const opacity = Math.max(0.08, 0.35 - dist*0.09);
-        const scale   = Math.max(0.5,  1.0  - dist*0.12);
-        d.style.opacity = opacity;
-        d.style.transform = `scale(${scale})`;
-        d.style.filter = dist > 1 ? 'blur(0.5px)' : 'none';
-        d.textContent = SYMBOLS[Math.floor(Math.random()*10)];
-        d.style.color = `rgba(255,100,140,${opacity})`;
-        d.classList.add('is-fading');
-      }
-      s.appendChild(d);
+  // === Build a strip: array of N numbers ===
+  function makeStrip(finalVal) {
+    const s = [];
+    for (let i = 0; i < N; i++) {
+      if (i === CENTER_IDX) s.push(finalVal);
+      else s.push(SYMBOLS[Math.floor(Math.random() * 10)]);
     }
-    // Centre the strip so row CENTER (index 3) lines up with reel-window center
-    s.style.transform = `translateY(${-CENTER*H}px)`;
-    s.style.transition = 'none';
+    return s;
   }
 
-  // === Start a reel spinning ===
-  function spinStart(i) {
-    R[i].spin = true;
-    R[i].cur  = SYMBOLS[Math.floor(Math.random()*10)];
-    renderStrip(i, R[i].cur);
+  // === Draw one reel onto its canvas ===
+  function drawReel(i) {
+    const c = ctxs[i];
+    const r = R[i];
+    c.clearRect(0, 0, W, H);
 
-    R[i].tid = setInterval(() => {
-      R[i].cur = SYMBOLS[Math.floor(Math.random()*10)];
-      const row = strips[i].children[CENTER];
-      if (row) {
-        row.textContent = R[i].cur;
-        row.className = 'reel-symbol is-center';
+    // How many pixels to shift (strip scrolls upward)
+    const shift = r.offset % H;
+
+    // Draw each symbol row
+    for (let row = 0; row < N; row++) {
+      const px = row * H - shift; // pixel position of this row
+      if (px < -H || px > H + H) continue; // skip rows way outside canvas
+
+      const dist = Math.abs(row - CENTER_IDX);
+      const isCenter = row === CENTER_IDX;
+
+      // Colors
+      let alpha, scale, fontSize, color, glow;
+      if (isCenter) {
+        alpha = 1; scale = 1; fontSize = 72;
+        color = '#ff6c8f';
+        glow = 'rgba(255,108,143,0.7)';
+      } else {
+        alpha = Math.max(0.05, 0.35 - dist * 0.07);
+        scale = Math.max(0.5, 1 - dist * 0.11);
+        fontSize = Math.round(72 * scale);
+        color = `rgba(255,100,140,${alpha})`;
+        glow = null;
       }
-    }, SPIN_MS);
+
+      c.save();
+      c.globalAlpha = alpha;
+      c.font = `900 ${fontSize}px 'Space Grotesk', sans-serif`;
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillStyle = color;
+
+      if (glow) {
+        c.shadowColor = glow;
+        c.shadowBlur = isCenter ? 15 : 8;
+      }
+
+      c.fillText(r.strip[row], W / 2, px + H / 2);
+      c.restore();
+    }
+
+    // Vignette top + bottom (handled by CSS gradients, but add a darken)
+    const grad = c.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0,    'rgba(10,0,20,0.5)');
+    grad.addColorStop(0.3,  'rgba(10,0,20,0)');
+    grad.addColorStop(0.7,  'rgba(10,0,20,0)');
+    grad.addColorStop(1,    'rgba(10,0,20,0.5)');
+    c.fillStyle = grad;
+    c.fillRect(0, 0, W, H);
   }
 
-  // === Stop a reel ===
-  function spinStop(i, finalVal, cb) {
-    R[i].spin = false;
-    clearInterval(R[i].tid);
-    R[i].tid = null;
+  // === Animation loop for a spinning reel ===
+  function spinLoop(i) {
+    if (!R[i].spinning) return;
 
-    // Rebuild strip with finalVal at center, others random
-    renderStrip(i, finalVal, finalVal);
+    // Scroll strip upward by fractional pixels
+    R[i].offset += 4;
 
-    // Animate snap into place with spring easing
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      strips[i].style.transition = `transform 0.6s cubic-bezier(0.22,1,0.36,1)`;
-      strips[i].style.transform = `translateY(${-CENTER*H}px)`;
-      setTimeout(cb, 650);
-    }));
+    // Every time we scroll past one full row, swap the symbol at the bottom
+    const rowsScrolled = Math.floor(R[i].offset / H);
+    if (rowsScrolled > 0) {
+      R[i].offset -= rowsScrolled * H;
+      // Cycle: shift strip, push new random at the back
+      R[i].strip.shift();
+      R[i].strip.push(SYMBOLS[Math.floor(Math.random() * 10)]);
+    }
+
+    // Randomize the center symbol while spinning
+    if (R[i].spinning) {
+      R[i].strip[CENTER_IDX] = SYMBOLS[Math.floor(Math.random() * 10)];
+    }
+
+    drawReel(i);
+    R[i].animId = requestAnimationFrame(() => spinLoop(i));
+  }
+
+  // === Start spinning reel i ===
+  function spinStart(i, finalVal) {
+    R[i].final = finalVal;
+    R[i].strip = makeStrip(finalVal);
+    R[i].offset = 0;
+    R[i].spinning = true;
+    R[i].stopDone = false;
+    R[i].animId = requestAnimationFrame(() => spinLoop(i));
+  }
+
+  // === Stop reel i at finalVal ===
+  function spinStop(i, finalVal, onStopped) {
+    R[i].spinning = false;
+    cancelAnimationFrame(R[i].animId);
+
+    // Rebuild strip with finalVal at center
+    R[i].strip = makeStrip(finalVal);
+    R[i].offset = 0;
+
+    // Settle: animate offset to exactly align center row
+    let steps = 0;
+    const settle = () => {
+      steps++;
+      // Move offset so the CENTER_IDX row lands exactly at pixel 0 (top of canvas)
+      // offset = CENTER_IDX * H means row CENTER_IDX is at position 0 = top
+      const targetOffset = CENTER_IDX * H;
+
+      if (steps < 30) {
+        // Ease toward target
+        R[i].offset += (targetOffset - R[i].offset) * 0.25;
+        drawReel(i);
+        requestAnimationFrame(settle);
+      } else {
+        // Snap to exact
+        R[i].offset = targetOffset;
+        drawReel(i);
+        R[i].stopDone = true;
+        if (onStopped) onStopped();
+      }
+    };
+
+    // First do a quick deceleration spin
+    let vel = 8;
+    const decel = () => {
+      if (vel < 0.5) { settle(); return; }
+      R[i].offset += vel;
+      const rowsScrolled = Math.floor(R[i].offset / H);
+      if (rowsScrolled > 0) {
+        R[i].offset -= rowsScrolled * H;
+        R[i].strip.shift();
+        R[i].strip.push(SYMBOLS[Math.floor(Math.random() * 10)]);
+      }
+      drawReel(i);
+      vel *= 0.88;
+      requestAnimationFrame(decel);
+    };
+    requestAnimationFrame(decel);
   }
 
   // === Win flash ===
   function flashWin() {
-    strips.forEach((s,i) => {
-      const c = s.children[CENTER];
-      if (c) {
-        c.style.color = '#ffd709';
-        c.style.textShadow = '0 0 20px rgba(255,215,9,0.9),0 0 40px rgba(255,215,9,0.5)';
-        c.style.fontSize = '82px';
-      }
+    // Draw golden version of each reel
+    R.forEach((r, i) => {
+      const c = ctxs[i];
+      c.clearRect(0, 0, W, H);
+      c.save();
+      c.font = `900 80px 'Space Grotesk', sans-serif`;
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillStyle = '#ffd709';
+      c.shadowColor = 'rgba(255,215,9,0.9)';
+      c.shadowBlur = 30;
+      c.fillText(r.final, W / 2, H / 2);
+      c.restore();
     });
     document.body.style.transition = 'background-color .3s';
     document.body.style.backgroundColor = '#ffd709';
     setTimeout(() => {
-      document.body.style.transition = 'background-color .5s';
+      document.body.style.transition = 'background-color .6s';
       document.body.style.backgroundColor = '#150629';
     }, 200);
   }
@@ -720,42 +746,44 @@ tailwind.config = {
     coinRng.style.display = 'block';
 
     const vals = [
-      Math.floor(Math.random()*10),
-      Math.floor(Math.random()*10),
-      Math.floor(Math.random()*10)
+      Math.floor(Math.random() * 10),
+      Math.floor(Math.random() * 10),
+      Math.floor(Math.random() * 10)
     ];
     state.reelValues = vals;
 
     // Start all reels
-    spinStart(0); spinStart(1); spinStart(2);
+    spinStart(0, vals[0]);
+    spinStart(1, vals[1]);
+    spinStart(2, vals[2]);
 
-    // Stop reel 1 @ 0.8s
+    // Stop reel 1 after 800ms
     await wait(800);
     spinStop(0, vals[0]);
 
-    // Stop reel 2 @ 1.6s
+    // Stop reel 2 after 800ms more
     await wait(800);
     spinStop(1, vals[1]);
 
-    // Stop reel 3 @ 2.4s, then resolve
+    // Stop reel 3 after 800ms more
     await wait(800);
     spinStop(2, vals[2], () => {
       coinRng.style.display = 'none';
 
-      const won = vals[0]===vals[1] && vals[1]===vals[2];
-      const amt = won ? PRIZES[vals[0]] * state.bet/10 : 0;
+      const won = vals[0] === vals[1] && vals[1] === vals[2];
+      const amt = won ? PRIZES[vals[0]] * state.bet / 10 : 0;
 
-      if (won) { flashWin(); }
+      if (won) flashWin();
 
       state.spinsLeft--;
       sessionStorage.setItem('spinsLeft', state.spinsLeft);
-      spLeft.textContent = state.spinsLeft;
-      spDisp.textContent = state.spinsLeft;
+      spLeft.textContent  = state.spinsLeft;
+      spDisp.textContent  = state.spinsLeft;
 
       if (amt > 0) {
         lastWin.style.display = 'flex';
-        lastAmt.textContent = '+'+amt+'K';
-        lastAmt.className = 'font-headline font-bold '+(amt>=500?'text-primary':'text-secondary')+' text-lg';
+        lastAmt.textContent  = '+' + amt + 'K';
+        lastAmt.className    = 'font-headline font-bold ' + (amt >= 500 ? 'text-primary' : 'text-secondary') + ' text-lg';
       }
 
       sessionStorage.setItem('lastReels', JSON.stringify(vals));
@@ -765,16 +793,42 @@ tailwind.config = {
       state.isSpinning = false;
       spinTxt.style.display = 'block';
       spinSpn.style.display = 'none';
-      btnSpin.disabled = false;
+      btnSpin.disabled     = false;
 
       if (state.spinsLeft <= 0) {
-        setTimeout(() => window.location.href='result.html', 1200);
+        setTimeout(() => window.location.href = 'result.html', 1200);
       }
     });
   }
 
   function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
-  function goHome() { window.location.href='login.html'; }
+  function goHome() { window.location.href = 'login.html'; }
+
+  // === Init ===
+  function init() {
+    if (!sessionStorage.getItem('userPhone')) { window.location.href = 'login.html'; return; }
+    spLeft.textContent = state.spinsLeft;
+    spDisp.textContent = state.spinsLeft;
+    updateUI();
+
+    // Draw initial idle state
+    R.forEach((r, i) => {
+      r.strip = makeStrip(7);
+      r.offset = CENTER_IDX * H; // center row at top
+      drawReel(i);
+    });
+  }
+
+  function updateUI() {
+    scrGame.style.display = state.spinsLeft <= 0 ? 'none' : 'flex';
+    scrNone.style.display = state.spinsLeft <= 0 ? 'flex' : 'none';
+  }
+
+  function adjustBet(d) {
+    state.betIndex = Math.max(0, Math.min(state.betOptions.length - 1, state.betIndex + d));
+    state.bet = state.betOptions[state.betIndex];
+    betDisp.textContent = state.bet + 'K';
+  }
 
   init();
 </script>
