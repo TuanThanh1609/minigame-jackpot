@@ -387,24 +387,24 @@ tailwind.config = {
         <div class="absolute inset-0 pointer-events-none z-20 border-[12px] border-surface-container-low rounded-lg" style="box-shadow: inset 0 0 40px rgba(0,0,0,0.8)"></div>
 
         <!-- Reel 1 — Canvas -->
-        <div class="reel-window bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
-          <canvas id="reel-canvas-0" width="110" height="110" class="w-full h-full"></canvas>
+        <div class="bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
+          <canvas id="reel-canvas-0" class="block w-full h-full" style="width:110px;height:110px;image-rendering:pixelated"></canvas>
           <div class="absolute top-0 left-0 w-full h-[35px] bg-gradient-to-b from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
           <div class="absolute bottom-0 left-0 w-full h-[35px] bg-gradient-to-t from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
           <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
         </div>
 
         <!-- Reel 2 — Canvas -->
-        <div class="reel-window bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
-          <canvas id="reel-canvas-1" width="110" height="110" class="w-full h-full"></canvas>
+        <div class="bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
+          <canvas id="reel-canvas-1" class="block w-full h-full" style="width:110px;height:110px;image-rendering:pixelated"></canvas>
           <div class="absolute top-0 left-0 w-full h-[35px] bg-gradient-to-b from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
           <div class="absolute bottom-0 left-0 w-full h-[35px] bg-gradient-to-t from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
           <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
         </div>
 
         <!-- Reel 3 — Canvas -->
-        <div class="reel-window bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
-          <canvas id="reel-canvas-2" width="110" height="110" class="w-full h-full"></canvas>
+        <div class="bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
+          <canvas id="reel-canvas-2" class="block w-full h-full" style="width:110px;height:110px;image-rendering:pixelated"></canvas>
           <div class="absolute top-0 left-0 w-full h-[35px] bg-gradient-to-b from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
           <div class="absolute bottom-0 left-0 w-full h-[35px] bg-gradient-to-t from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
           <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
@@ -514,323 +514,241 @@ tailwind.config = {
 </nav>
 
 <script>
-  // === Game State ===
-  const state = {
-    spinsLeft: parseInt(sessionStorage.getItem('spinsLeft') || '3'),
-    isSpinning: false,
-    bet: 10,
-    betOptions: [5, 10, 20, 50, 100],
-    betIndex: 1,
-    reelValues: [7, 7, 7]
-  };
+// === Game Config ===
+const H = 110, W = 110;      // canvas pixel size
+const N = 7;                  // strip length (odd)
+const CTR = 3;                // CENTER_IDX in strip
+const SYMS = [0,1,2,3,4,5,6,7,8,9];
+const PRIZES = {0:0,1:0,2:0,3:50,4:100,5:100,6:200,7:500,8:100,9:100};
 
-  const SYMBOLS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-  const H = 110;  // canvas height = reel row height
-  const W = 110;  // canvas width
-  const N = 7;    // total symbols in the spinning strip (odd number)
-  const CENTER_IDX = 3; // index of the visible center row in the strip array
-  const SPIN_SPEED = 150; // ms — how fast the strip scrolls
+// === State ===
+const state = {
+  spinsLeft: parseInt(sessionStorage.getItem('spinsLeft') || '3'),
+  isSpinning: false,
+  bet: 10,
+  betOptions: [5,10,20,50,100],
+  betIndex: 1
+};
 
-  const PRIZES = { 0:0,1:0,2:0,3:50,4:100,5:100,6:200,7:500,8:100,9:100 };
+// === Canvas refs ===
+const cvs = [
+  document.getElementById('reel-canvas-0'),
+  document.getElementById('reel-canvas-1'),
+  document.getElementById('reel-canvas-2')
+];
+const ctx = cvs.map(c => c.getContext('2d'));
 
-  // === DOM refs ===
-  const btnSpin  = document.getElementById('btn-spin');
-  const spinTxt  = document.getElementById('spin-text');
-  const spinSpn  = document.getElementById('spin-spinner');
-  const spLeft   = document.getElementById('spins-left');
-  const spDisp   = document.getElementById('spins-display');
-  const betDisp  = document.getElementById('bet-display');
-  const lastWin  = document.getElementById('last-win');
-  const lastAmt  = document.getElementById('last-win-amount');
-  const scrGame  = document.getElementById('screen-game');
-  const scrNone  = document.getElementById('screen-nospins');
-  const coinRng  = document.getElementById('coin-rain');
+// === Per-reel runtime ===
+// offset: 0 = CENTER_IDX row sits at TOP (y=0) of canvas
+// offset scrolls from 0 → H then wraps. At offset=H, row CTR lands at y=H (off-screen)
+const R = [{s:false,id:null,strip:[],off:CTR*H,vel:0,fin:7},
+           {s:false,id:null,strip:[],off:CTR*H,vel:0,fin:7},
+           {s:false,id:null,strip:[],off:CTR*H,vel:0,fin:7}];
 
-  // === Canvas setup ===
-  const canvases = [
-    document.getElementById('reel-canvas-0'),
-    document.getElementById('reel-canvas-1'),
-    document.getElementById('reel-canvas-2')
-  ];
-  const ctxs = canvases.map(c => c.getContext('2d'));
+// === Make strip array ===
+function mkStrip(v) {
+  return Array.from({length:N},(_,i) => i===CTR ? v : SYMS[Math.random()*10|0]);
+}
 
-  // Per-reel state
-  const R = [
-    { spinning: false, animId: null, strip: [], offset: 0, cur: 7, final: 7, stopDone: false },
-    { spinning: false, animId: null, strip: [], offset: 0, cur: 7, final: 7, stopDone: false },
-    { spinning: false, animId: null, strip: [], offset: 0, cur: 7, final: 7, stopDone: false }
-  ];
+// === Draw reel i ===
+function draw(i) {
+  const cv = ctx[i], r = R[i];
+  cv.clearRect(0,0,W,H);
 
-  // === Build a strip: array of N numbers ===
-  function makeStrip(finalVal) {
-    const s = [];
-    for (let i = 0; i < N; i++) {
-      if (i === CENTER_IDX) s.push(finalVal);
-      else s.push(SYMBOLS[Math.floor(Math.random() * 10)]);
-    }
-    return s;
+  const off = r.off % H; // pixel shift within one row-height cycle
+
+  for (let row=0; row<N; row++) {
+    const py = row*H - off; // y-pos of this row's top edge
+    if (py < -H || py > H) continue; // off-screen
+
+    const dist = Math.abs(row - CTR);
+    const ctr = row === CTR;
+
+    let alpha = ctr ? 1 : Math.max(0.05, 0.38 - dist*0.08);
+    let fs    = ctr ? 72  : Math.round(72 * Math.max(0.5, 1-dist*0.12));
+    let color = ctr ? '#ff6c8f' : `rgba(255,100,140,${alpha})`;
+    let glow  = ctr ? 'rgba(255,108,143,0.7)' : null;
+
+    cv.save();
+    cv.globalAlpha = alpha;
+    cv.font = `900 ${fs}px 'Space Grotesk',sans-serif`;
+    cv.textAlign = 'center';
+    cv.textBaseline = 'middle';
+    cv.fillStyle = color;
+    if (glow) { cv.shadowColor = glow; cv.shadowBlur = ctr ? 18 : 8; }
+    cv.fillText(r.strip[row], W/2, py + H/2);
+    cv.restore();
+  }
+}
+
+// === Spin loop (RAF-based, ~60fps) ===
+let lastTs = 0;
+function loop(ts, i) {
+  if (!R[i].s) return;
+  const dt = Math.min((ts - lastTs) / 1000, 0.05); // cap delta to 50ms
+  lastTs = ts;
+
+  // Advance: vel pixels per second
+  R[i].off += R[i].vel * dt;
+  const rowsMoved = Math.floor(R[i].off / H);
+  if (rowsMoved > 0) {
+    R[i].off -= rowsMoved * H;
+    R[i].strip.shift();
+    R[i].strip.push(SYMS[Math.random()*10|0]);
   }
 
-  // === Draw one reel onto its canvas ===
-  function drawReel(i) {
-    const c = ctxs[i];
-    const r = R[i];
-    c.clearRect(0, 0, W, H);
+  // Randomize center while spinning
+  R[i].strip[CTR] = SYMS[Math.random()*10|0];
+  draw(i);
+  R[i].id = requestAnimationFrame(t => loop(t, i));
+}
 
-    // How many pixels to shift (strip scrolls upward)
-    const shift = r.offset % H;
+// === Start reel i ===
+function startSpin(i, fin) {
+  R[i].fin = fin;
+  R[i].strip = mkStrip(fin);
+  R[i].off  = CTR * H; // CENTER_IDX at top
+  R[i].vel  = 220;     // 220 px/s ≈ 2 rows/s
+  R[i].s    = true;
+  lastTs = performance.now();
+  R[i].id = requestAnimationFrame(t => loop(t, i));
+}
 
-    // Draw each symbol row
-    for (let row = 0; row < N; row++) {
-      const px = row * H - shift; // pixel position of this row
-      if (px < -H || px > H + H) continue; // skip rows way outside canvas
+// === Stop reel i ===
+function stopSpin(i, fin, cb) {
+  R[i].s = false;
+  cancelAnimationFrame(R[i].id);
 
-      const dist = Math.abs(row - CENTER_IDX);
-      const isCenter = row === CENTER_IDX;
+  R[i].fin = fin;
+  R[i].strip = mkStrip(fin);
+  R[i].vel  = 120; // start deceleration at 120px/s
 
-      // Colors
-      let alpha, scale, fontSize, color, glow;
-      if (isCenter) {
-        alpha = 1; scale = 1; fontSize = 72;
-        color = '#ff6c8f';
-        glow = 'rgba(255,108,143,0.7)';
-      } else {
-        alpha = Math.max(0.05, 0.35 - dist * 0.07);
-        scale = Math.max(0.5, 1 - dist * 0.11);
-        fontSize = Math.round(72 * scale);
-        color = `rgba(255,100,140,${alpha})`;
-        glow = null;
-      }
-
-      c.save();
-      c.globalAlpha = alpha;
-      c.font = `900 ${fontSize}px 'Space Grotesk', sans-serif`;
-      c.textAlign = 'center';
-      c.textBaseline = 'middle';
-      c.fillStyle = color;
-
-      if (glow) {
-        c.shadowColor = glow;
-        c.shadowBlur = isCenter ? 15 : 8;
-      }
-
-      c.fillText(r.strip[row], W / 2, px + H / 2);
-      c.restore();
-    }
-
-    // Vignette top + bottom (handled by CSS gradients, but add a darken)
-    const grad = c.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0,    'rgba(10,0,20,0.5)');
-    grad.addColorStop(0.3,  'rgba(10,0,20,0)');
-    grad.addColorStop(0.7,  'rgba(10,0,20,0)');
-    grad.addColorStop(1,    'rgba(10,0,20,0.5)');
-    c.fillStyle = grad;
-    c.fillRect(0, 0, W, H);
-  }
-
-  // === Animation loop for a spinning reel ===
-  function spinLoop(i) {
-    if (!R[i].spinning) return;
-
-    // Scroll strip upward by fractional pixels
-    R[i].offset += 4;
-
-    // Every time we scroll past one full row, swap the symbol at the bottom
-    const rowsScrolled = Math.floor(R[i].offset / H);
-    if (rowsScrolled > 0) {
-      R[i].offset -= rowsScrolled * H;
-      // Cycle: shift strip, push new random at the back
+  function decel() {
+    if (R[i].vel <= 0.5) { settle(i, cb); return; }
+    R[i].off += R[i].vel * 0.016; // ~60fps
+    const rows = Math.floor(R[i].off / H);
+    if (rows > 0) {
+      R[i].off -= rows * H;
       R[i].strip.shift();
-      R[i].strip.push(SYMBOLS[Math.floor(Math.random() * 10)]);
+      R[i].strip.push(SYMS[Math.random()*10|0]);
+    }
+    draw(i);
+    R[i].vel *= 0.90; // brake
+    R[i].id = requestAnimationFrame(decel);
+  }
+
+  R[i].id = requestAnimationFrame(decel);
+}
+
+function settle(i, cb) {
+  R[i].off = CTR * H;
+  R[i].strip = mkStrip(R[i].fin);
+  draw(i);
+  if (cb) cb();
+}
+
+// === Win glow ===
+function flashWin() {
+  R.forEach((r,i) => {
+    const cv = ctx[i];
+    cv.clearRect(0,0,W,H);
+    cv.save();
+    cv.font = "900 76px 'Space Grotesk',sans-serif";
+    cv.textAlign = 'center';
+    cv.textBaseline = 'middle';
+    cv.fillStyle = '#ffd709';
+    cv.shadowColor = 'rgba(255,215,9,0.9)';
+    cv.shadowBlur = 35;
+    cv.fillText(r.fin, W/2, H/2);
+    cv.restore();
+  });
+  document.body.style.transition = 'background-color .3s';
+  document.body.style.backgroundColor = '#ffd709';
+  setTimeout(() => {
+    document.body.style.transition = 'background-color .6s';
+    document.body.style.backgroundColor = '#150629';
+  }, 200);
+}
+
+// === Main spin ===
+async function spin() {
+  if (state.isSpinning || state.spinsLeft <= 0) return;
+  state.isSpinning = true;
+
+  document.getElementById('spin-text').style.display  = 'none';
+  document.getElementById('spin-spinner').style.display = 'block';
+  document.getElementById('btn-spin').disabled = true;
+  document.getElementById('coin-rain').style.display = 'block';
+
+  const vals = [Math.random()*10|0, Math.random()*10|0, Math.random()*10|0];
+
+  // Kick off all 3 reels
+  startSpin(0, vals[0]);
+  startSpin(1, vals[1]);
+  startSpin(2, vals[2]);
+
+  // Stop each reel sequentially
+  await new Promise(r => setTimeout(r, 800));
+  stopSpin(0, vals[0]);
+
+  await new Promise(r => setTimeout(r, 800));
+  stopSpin(1, vals[1]);
+
+  await new Promise(r => setTimeout(r, 800));
+  stopSpin(2, vals[2], () => {
+    document.getElementById('coin-rain').style.display = 'none';
+
+    const won = vals[0]===vals[1] && vals[1]===vals[2];
+    const amt = won ? PRIZES[vals[0]] * state.bet / 10 : 0;
+
+    if (won) flashWin();
+
+    state.spinsLeft--;
+    sessionStorage.setItem('spinsLeft', state.spinsLeft);
+    document.getElementById('spins-left').textContent = state.spinsLeft;
+    document.getElementById('spins-display').textContent = state.spinsLeft;
+
+    const lw = document.getElementById('last-win');
+    const la = document.getElementById('last-win-amount');
+    if (amt > 0) {
+      lw.style.display = 'flex';
+      la.textContent = '+' + amt + 'K';
+      la.className = 'font-headline font-bold ' + (amt>=500?'text-primary':'text-secondary') + ' text-lg';
     }
 
-    // Randomize the center symbol while spinning
-    if (R[i].spinning) {
-      R[i].strip[CENTER_IDX] = SYMBOLS[Math.floor(Math.random() * 10)];
+    sessionStorage.setItem('lastReels', JSON.stringify(vals));
+    sessionStorage.setItem('lastWin', won);
+    sessionStorage.setItem('lastWinAmount', amt);
+
+    state.isSpinning = false;
+    document.getElementById('spin-text').style.display = 'block';
+    document.getElementById('spin-spinner').style.display = 'none';
+    document.getElementById('btn-spin').disabled = false;
+
+    if (state.spinsLeft <= 0) {
+      setTimeout(() => window.location.href = 'result.html', 1200);
     }
+  });
+}
 
-    drawReel(i);
-    R[i].animId = requestAnimationFrame(() => spinLoop(i));
-  }
+function adjustBet(d) {
+  state.betIndex = Math.max(0, Math.min(state.betOptions.length-1, state.betIndex+d));
+  state.bet = state.betOptions[state.betIndex];
+  document.getElementById('bet-display').textContent = state.bet+'K';
+}
+function goHome() { window.location.href = 'login.html'; }
 
-  // === Start spinning reel i ===
-  function spinStart(i, finalVal) {
-    R[i].final = finalVal;
-    R[i].strip = makeStrip(finalVal);
-    R[i].offset = 0;
-    R[i].spinning = true;
-    R[i].stopDone = false;
-    R[i].animId = requestAnimationFrame(() => spinLoop(i));
-  }
-
-  // === Stop reel i at finalVal ===
-  function spinStop(i, finalVal, onStopped) {
-    R[i].spinning = false;
-    cancelAnimationFrame(R[i].animId);
-
-    // Rebuild strip with finalVal at center
-    R[i].strip = makeStrip(finalVal);
-    R[i].offset = 0;
-
-    // Settle: animate offset to exactly align center row
-    let steps = 0;
-    const settle = () => {
-      steps++;
-      // Move offset so the CENTER_IDX row lands exactly at pixel 0 (top of canvas)
-      // offset = CENTER_IDX * H means row CENTER_IDX is at position 0 = top
-      const targetOffset = CENTER_IDX * H;
-
-      if (steps < 30) {
-        // Ease toward target
-        R[i].offset += (targetOffset - R[i].offset) * 0.25;
-        drawReel(i);
-        requestAnimationFrame(settle);
-      } else {
-        // Snap to exact
-        R[i].offset = targetOffset;
-        drawReel(i);
-        R[i].stopDone = true;
-        if (onStopped) onStopped();
-      }
-    };
-
-    // First do a quick deceleration spin
-    let vel = 8;
-    const decel = () => {
-      if (vel < 0.5) { settle(); return; }
-      R[i].offset += vel;
-      const rowsScrolled = Math.floor(R[i].offset / H);
-      if (rowsScrolled > 0) {
-        R[i].offset -= rowsScrolled * H;
-        R[i].strip.shift();
-        R[i].strip.push(SYMBOLS[Math.floor(Math.random() * 10)]);
-      }
-      drawReel(i);
-      vel *= 0.88;
-      requestAnimationFrame(decel);
-    };
-    requestAnimationFrame(decel);
-  }
-
-  // === Win flash ===
-  function flashWin() {
-    // Draw golden version of each reel
-    R.forEach((r, i) => {
-      const c = ctxs[i];
-      c.clearRect(0, 0, W, H);
-      c.save();
-      c.font = `900 80px 'Space Grotesk', sans-serif`;
-      c.textAlign = 'center';
-      c.textBaseline = 'middle';
-      c.fillStyle = '#ffd709';
-      c.shadowColor = 'rgba(255,215,9,0.9)';
-      c.shadowBlur = 30;
-      c.fillText(r.final, W / 2, H / 2);
-      c.restore();
-    });
-    document.body.style.transition = 'background-color .3s';
-    document.body.style.backgroundColor = '#ffd709';
-    setTimeout(() => {
-      document.body.style.transition = 'background-color .6s';
-      document.body.style.backgroundColor = '#150629';
-    }, 200);
-  }
-
-  // === Main spin ===
-  async function spin() {
-    if (state.isSpinning || state.spinsLeft <= 0) return;
-    state.isSpinning = true;
-    spinTxt.style.display = 'none';
-    spinSpn.style.display = 'block';
-    btnSpin.disabled = true;
-    coinRng.style.display = 'block';
-
-    const vals = [
-      Math.floor(Math.random() * 10),
-      Math.floor(Math.random() * 10),
-      Math.floor(Math.random() * 10)
-    ];
-    state.reelValues = vals;
-
-    // Start all reels
-    spinStart(0, vals[0]);
-    spinStart(1, vals[1]);
-    spinStart(2, vals[2]);
-
-    // Stop reel 1 after 800ms
-    await wait(800);
-    spinStop(0, vals[0]);
-
-    // Stop reel 2 after 800ms more
-    await wait(800);
-    spinStop(1, vals[1]);
-
-    // Stop reel 3 after 800ms more
-    await wait(800);
-    spinStop(2, vals[2], () => {
-      coinRng.style.display = 'none';
-
-      const won = vals[0] === vals[1] && vals[1] === vals[2];
-      const amt = won ? PRIZES[vals[0]] * state.bet / 10 : 0;
-
-      if (won) flashWin();
-
-      state.spinsLeft--;
-      sessionStorage.setItem('spinsLeft', state.spinsLeft);
-      spLeft.textContent  = state.spinsLeft;
-      spDisp.textContent  = state.spinsLeft;
-
-      if (amt > 0) {
-        lastWin.style.display = 'flex';
-        lastAmt.textContent  = '+' + amt + 'K';
-        lastAmt.className    = 'font-headline font-bold ' + (amt >= 500 ? 'text-primary' : 'text-secondary') + ' text-lg';
-      }
-
-      sessionStorage.setItem('lastReels', JSON.stringify(vals));
-      sessionStorage.setItem('lastWin', won);
-      sessionStorage.setItem('lastWinAmount', amt);
-
-      state.isSpinning = false;
-      spinTxt.style.display = 'block';
-      spinSpn.style.display = 'none';
-      btnSpin.disabled     = false;
-
-      if (state.spinsLeft <= 0) {
-        setTimeout(() => window.location.href = 'result.html', 1200);
-      }
-    });
-  }
-
-  function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
-  function goHome() { window.location.href = 'login.html'; }
-
-  // === Init ===
-  function init() {
-    if (!sessionStorage.getItem('userPhone')) { window.location.href = 'login.html'; return; }
-    spLeft.textContent = state.spinsLeft;
-    spDisp.textContent = state.spinsLeft;
-    updateUI();
-
-    // Draw initial idle state
-    R.forEach((r, i) => {
-      r.strip = makeStrip(7);
-      r.offset = CENTER_IDX * H; // center row at top
-      drawReel(i);
-    });
-  }
-
-  function updateUI() {
-    scrGame.style.display = state.spinsLeft <= 0 ? 'none' : 'flex';
-    scrNone.style.display = state.spinsLeft <= 0 ? 'flex' : 'none';
-  }
-
-  function adjustBet(d) {
-    state.betIndex = Math.max(0, Math.min(state.betOptions.length - 1, state.betIndex + d));
-    state.bet = state.betOptions[state.betIndex];
-    betDisp.textContent = state.bet + 'K';
-  }
-
-  init();
+function init() {
+  if (!sessionStorage.getItem('userPhone')) { window.location.href='login.html'; return; }
+  const sl = parseInt(sessionStorage.getItem('spinsLeft') || '3');
+  state.spinsLeft = sl;
+  document.getElementById('spins-left').textContent = sl;
+  document.getElementById('spins-display').textContent = sl;
+  document.getElementById('screen-game').style.display = sl<=0 ? 'none' : 'flex';
+  document.getElementById('screen-nospins').style.display = sl<=0 ? 'flex' : 'none';
+  R.forEach((r,i) => { r.strip=mkStrip(7); r.off=CTR*H; draw(i); });
+}
+init();
 </script>
 </body>
 </html>
