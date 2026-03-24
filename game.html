@@ -230,6 +230,39 @@ tailwind.config = {
     filter: drop-shadow(0 0 20px rgba(255, 231, 146, 0.8));
   }
 
+  /* === SLOT REEL ANIMATION === */
+  .reel-strip {
+    transition: none;
+  }
+  .reel-cell {
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 900;
+    font-size: 72px;
+    line-height: 110px;
+    text-align: center;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .reel-cell-center {
+    color: #ff6c8f;
+    text-shadow: 0 0 15px rgba(255,108,143,0.7), 0 0 30px rgba(255,108,143,0.4);
+  }
+  .reel-cell-top, .reel-cell-bottom {
+    color: rgba(255, 100, 140, 0.2);
+    font-size: 60px;
+    filter: blur(1px);
+  }
+  /* Win glow state */
+  .reel-cell.is-win {
+    color: #ffd709 !important;
+    text-shadow: 0 0 20px rgba(255,215,9,0.9), 0 0 40px rgba(255,215,9,0.5) !important;
+    font-size: 78px !important;
+    filter: none !important;
+  }
   @keyframes shimmer {
     0% { backgroundPosition: '-200% 0' }
     100% { backgroundPosition: '200% 0' }
@@ -386,28 +419,42 @@ tailwind.config = {
         <!-- Inner Bezel -->
         <div class="absolute inset-0 pointer-events-none z-20 border-[12px] border-surface-container-low rounded-lg" style="box-shadow: inset 0 0 40px rgba(0,0,0,0.8)"></div>
 
-        <!-- Reel 1 — Canvas -->
+        <!-- Reel 1: 3 visible slots top/middle/bottom -->
         <div class="bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
-          <canvas id="reel-canvas-0" class="block w-full h-full" style="width:110px;height:110px;image-rendering:pixelated"></canvas>
-          <div class="absolute top-0 left-0 w-full h-[35px] bg-gradient-to-b from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
-          <div class="absolute bottom-0 left-0 w-full h-[35px] bg-gradient-to-t from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
-          <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
+          <!-- Scrolling strip -->
+          <div id="reel1" class="reel-strip absolute left-0 w-full flex flex-col" style="top:0;height:330px">
+            <div id="r1a" class="reel-cell reel-cell-top">0</div>
+            <div id="r1b" class="reel-cell reel-cell-center">7</div>
+            <div id="r1c" class="reel-cell reel-cell-bottom">0</div>
+          </div>
+          <!-- Vignette -->
+          <div class="absolute inset-0 z-[5] pointer-events-none rounded"
+               style="background:linear-gradient(to bottom,rgba(10,0,20,0.7)_0%,transparent_30%,transparent_70%,rgba(10,0,20,0.7)_100%)"></div>
+          <div class="glossy-overlay absolute inset-0 z-[5] pointer-events-none rounded"></div>
         </div>
 
-        <!-- Reel 2 — Canvas -->
+        <!-- Reel 2 -->
         <div class="bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
-          <canvas id="reel-canvas-1" class="block w-full h-full" style="width:110px;height:110px;image-rendering:pixelated"></canvas>
-          <div class="absolute top-0 left-0 w-full h-[35px] bg-gradient-to-b from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
-          <div class="absolute bottom-0 left-0 w-full h-[35px] bg-gradient-to-t from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
-          <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
+          <div id="reel2" class="reel-strip absolute left-0 w-full flex flex-col" style="top:0;height:330px">
+            <div id="r2a" class="reel-cell reel-cell-top">1</div>
+            <div id="r2b" class="reel-cell reel-cell-center">7</div>
+            <div id="r2c" class="reel-cell reel-cell-bottom">1</div>
+          </div>
+          <div class="absolute inset-0 z-[5] pointer-events-none rounded"
+               style="background:linear-gradient(to bottom,rgba(10,0,20,0.7)_0%,transparent_30%,transparent_70%,rgba(10,0,20,0.7)_100%)"></div>
+          <div class="glossy-overlay absolute inset-0 z-[5] pointer-events-none rounded"></div>
         </div>
 
-        <!-- Reel 3 — Canvas -->
+        <!-- Reel 3 -->
         <div class="bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
-          <canvas id="reel-canvas-2" class="block w-full h-full" style="width:110px;height:110px;image-rendering:pixelated"></canvas>
-          <div class="absolute top-0 left-0 w-full h-[35px] bg-gradient-to-b from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
-          <div class="absolute bottom-0 left-0 w-full h-[35px] bg-gradient-to-t from-[#0a0014]/95 to-transparent z-10 pointer-events-none"></div>
-          <div class="glossy-overlay absolute inset-0 pointer-events-none z-10 rounded"></div>
+          <div id="reel3" class="reel-strip absolute left-0 w-full flex flex-col" style="top:0;height:330px">
+            <div id="r3a" class="reel-cell reel-cell-top">2</div>
+            <div id="r3b" class="reel-cell reel-cell-center">7</div>
+            <div id="r3c" class="reel-cell reel-cell-bottom">2</div>
+          </div>
+          <div class="absolute inset-0 z-[5] pointer-events-none rounded"
+               style="background:linear-gradient(to bottom,rgba(10,0,20,0.7)_0%,transparent_30%,transparent_70%,rgba(10,0,20,0.7)_100%)"></div>
+          <div class="glossy-overlay absolute inset-0 z-[5] pointer-events-none rounded"></div>
         </div>
       </div>
 
@@ -514,15 +561,12 @@ tailwind.config = {
 </nav>
 
 <script>
-// === Game Config ===
-const H = 110, W = 110;      // canvas pixel size
-const N = 7;                  // strip length (odd)
-const CTR = 3;                // CENTER_IDX in strip
-const SYMS = [0,1,2,3,4,5,6,7,8,9];
-const PRIZES = {0:0,1:0,2:0,3:50,4:100,5:100,6:200,7:500,8:100,9:100};
+// === Config ===
+var H = 110;
+var SYMS = [0,1,2,3,4,5,6,7,8,9];
+var PRIZES = {0:0,1:0,2:0,3:50,4:100,5:100,6:200,7:500,8:100,9:100};
 
-// === State ===
-const state = {
+var state = {
   spinsLeft: parseInt(sessionStorage.getItem('spinsLeft') || '3'),
   isSpinning: false,
   bet: 10,
@@ -530,224 +574,226 @@ const state = {
   betIndex: 1
 };
 
-// === Canvas refs ===
-const cvs = [
-  document.getElementById('reel-canvas-0'),
-  document.getElementById('reel-canvas-1'),
-  document.getElementById('reel-canvas-2')
+var reels = [
+  {
+    strip: document.getElementById('reel1'),
+    cells: [
+      document.getElementById('r1a'),
+      document.getElementById('r1b'),
+      document.getElementById('r1c')
+    ],
+    animId: null,
+    offset: 0, // pixels scrolled, from 0 to H
+    fin: 7,
+    vel: 0,
+    spinning: false
+  },
+  {
+    strip: document.getElementById('reel2'),
+    cells: [
+      document.getElementById('r2a'),
+      document.getElementById('r2b'),
+      document.getElementById('r2c')
+    ],
+    animId: null,
+    offset: 0,
+    fin: 7,
+    vel: 0,
+    spinning: false
+  },
+  {
+    strip: document.getElementById('reel3'),
+    cells: [
+      document.getElementById('r3a'),
+      document.getElementById('r3b'),
+      document.getElementById('r3c')
+    ],
+    animId: null,
+    offset: 0,
+    fin: 7,
+    vel: 0,
+    spinning: false
+  }
 ];
-const ctx = cvs.map(c => c.getContext('2d'));
 
-// === Per-reel runtime ===
-// offset: 0 = CENTER_IDX row sits at TOP (y=0) of canvas
-// offset scrolls from 0 → H then wraps. At offset=H, row CTR lands at y=H (off-screen)
-const R = [{s:false,id:null,strip:[],off:CTR*H,vel:0,fin:7},
-           {s:false,id:null,strip:[],off:CTR*H,vel:0,fin:7},
-           {s:false,id:null,strip:[],off:CTR*H,vel:0,fin:7}];
+function rnd() { return SYMS[Math.floor(Math.random() * 10)]; }
 
-// === Make strip array ===
-function mkStrip(v) {
-  return Array.from({length:N},(_,i) => i===CTR ? v : SYMS[Math.random()*10|0]);
+function setCells(r, vals) {
+  r.cells[0].textContent = vals[0];
+  r.cells[1].textContent = vals[1];
+  r.cells[2].textContent = vals[2];
 }
 
-// === Draw reel i ===
-function draw(i) {
-  const cv = ctx[i], r = R[i];
-  cv.clearRect(0,0,W,H);
+function applyOffset(r) {
+  // offset=0: center row (index1) sits at y=H (just below top)
+  // The reel-window shows y=0 to y=H (110px)
+  // We want center row (index1) to be VISIBLE in the middle.
+  // So: translateY(-offset) means offset=0 → index1 at y=H (visible)
+  // But we want it at y=H/2=55 (center of 110px). So offset should shift by -H/2.
+  // Simpler: just use CSS top on the strip div directly.
+  // Strip height = 330px (3 cells of 110px).
+  // Center cell at y=110 from top of strip.
+  // Window shows y=0 to y=110 (top half of strip).
+  // To show center cell: strip top must be at -55px (cell 1 sits at y=110-55=55, middle)
+  // offset = H/2 = 55
+  r.strip.style.top = (-H/2 + r.offset) + 'px';
+}
 
-  const off = r.off % H; // pixel shift within one row-height cycle
-
-  for (let row=0; row<N; row++) {
-    const py = row*H - off; // y-pos of this row's top edge
-    if (py < -H || py > H) continue; // off-screen
-
-    const dist = Math.abs(row - CTR);
-    const ctr = row === CTR;
-
-    let alpha = ctr ? 1 : Math.max(0.05, 0.38 - dist*0.08);
-    let fs    = ctr ? 72  : Math.round(72 * Math.max(0.5, 1-dist*0.12));
-    let color = ctr ? '#ff6c8f' : `rgba(255,100,140,${alpha})`;
-    let glow  = ctr ? 'rgba(255,108,143,0.7)' : null;
-
-    cv.save();
-    cv.globalAlpha = alpha;
-    cv.font = `900 ${fs}px 'Space Grotesk',sans-serif`;
-    cv.textAlign = 'center';
-    cv.textBaseline = 'middle';
-    cv.fillStyle = color;
-    if (glow) { cv.shadowColor = glow; cv.shadowBlur = ctr ? 18 : 8; }
-    cv.fillText(r.strip[row], W/2, py + H/2);
-    cv.restore();
+function spinLoop(idx) {
+  var r = reels[idx];
+  if (!r.spinning) return;
+  // Move strip down by 1 cell height (110px) per call
+  r.offset += H;
+  if (r.offset >= H) {
+    r.offset = 0;
+    // Shift values: center → top, bottom → center, new random → bottom
+    r.cells[0].textContent = r.cells[1].textContent;
+    r.cells[1].textContent = r.cells[2].textContent;
+    r.cells[2].textContent = rnd();
   }
+  // Pulse scale on center cell while spinning
+  var pulse = 1 + Math.random() * 0.06 - 0.03;
+  r.cells[1].style.transform = 'scale(' + pulse.toFixed(2) + ')';
+  applyOffset(r);
+  r.animId = requestAnimationFrame(function() { spinLoop(idx); });
 }
 
-// === Spin loop (RAF-based, ~60fps) ===
-let lastTs = 0;
-function loop(ts, i) {
-  if (!R[i].s) return;
-  const dt = Math.min((ts - lastTs) / 1000, 0.05); // cap delta to 50ms
-  lastTs = ts;
-
-  // Advance: vel pixels per second
-  R[i].off += R[i].vel * dt;
-  const rowsMoved = Math.floor(R[i].off / H);
-  if (rowsMoved > 0) {
-    R[i].off -= rowsMoved * H;
-    R[i].strip.shift();
-    R[i].strip.push(SYMS[Math.random()*10|0]);
-  }
-
-  // Randomize center while spinning
-  R[i].strip[CTR] = SYMS[Math.random()*10|0];
-  draw(i);
-  R[i].id = requestAnimationFrame(t => loop(t, i));
-}
-
-// === Start reel i ===
-function startSpin(i, fin) {
-  R[i].fin = fin;
-  R[i].strip = mkStrip(fin);
-  R[i].off  = CTR * H; // CENTER_IDX at top
-  R[i].vel  = 220;     // 220 px/s ≈ 2 rows/s
-  R[i].s    = true;
-  lastTs = performance.now();
-  R[i].id = requestAnimationFrame(t => loop(t, i));
-}
-
-// === Stop reel i ===
-function stopSpin(i, fin, cb) {
-  R[i].s = false;
-  cancelAnimationFrame(R[i].id);
-
-  R[i].fin = fin;
-  R[i].strip = mkStrip(fin);
-  R[i].vel  = 120; // start deceleration at 120px/s
-
-  function decel() {
-    if (R[i].vel <= 0.5) { settle(i, cb); return; }
-    R[i].off += R[i].vel * 0.016; // ~60fps
-    const rows = Math.floor(R[i].off / H);
-    if (rows > 0) {
-      R[i].off -= rows * H;
-      R[i].strip.shift();
-      R[i].strip.push(SYMS[Math.random()*10|0]);
+function startReel(idx, fin) {
+  var r = reels[idx];
+  r.fin = fin;
+  r.offset = 0;
+  r.spinning = true;
+  // Fill with random values
+  setCells(r, [rnd(), rnd(), rnd()]);
+  applyOffset(r);
+  if (r._intervalId) clearInterval(r._intervalId);
+  r._intervalId = setInterval(function() {
+    if (!r.spinning) { clearInterval(r._intervalId); return; }
+    r.offset += H;
+    if (r.offset >= H) {
+      r.offset = 0;
+      r.cells[0].textContent = r.cells[1].textContent;
+      r.cells[1].textContent = r.cells[2].textContent;
+      r.cells[2].textContent = rnd();
     }
-    draw(i);
-    R[i].vel *= 0.90; // brake
-    R[i].id = requestAnimationFrame(decel);
-  }
-
-  R[i].id = requestAnimationFrame(decel);
+    r.cells[1].textContent = rnd();
+    var pulse = 1 + Math.random() * 0.06 - 0.03;
+    r.cells[1].style.transform = 'scale(' + pulse.toFixed(2) + ')';
+    applyOffset(r);
+  }, 80); // change number every 80ms
 }
 
-function settle(i, cb) {
-  R[i].off = CTR * H;
-  R[i].strip = mkStrip(R[i].fin);
-  draw(i);
-  if (cb) cb();
+function stopReel(idx, fin, cb) {
+  var r = reels[idx];
+  r.spinning = false;
+  if (r._intervalId) { clearInterval(r._intervalId); r._intervalId = null; }
+  cancelAnimationFrame(r.animId);
+  setCells(r, [rnd(), fin, rnd()]);
+  r.strip.style.transition = 'top 0.6s cubic-bezier(0.22,1,0.36,1)';
+  r.offset = 0;
+  applyOffset(r);
+  r.cells[1].classList.add('is-win');
+  r.cells[1].style.transform = 'scale(1.08)';
+  setTimeout(function() {
+    r.strip.style.transition = 'none';
+    r.cells[1].classList.remove('is-win');
+    r.cells[1].style.transform = 'scale(1)';
+    if (cb) cb();
+  }, 650);
 }
 
-// === Win glow ===
 function flashWin() {
-  R.forEach((r,i) => {
-    const cv = ctx[i];
-    cv.clearRect(0,0,W,H);
-    cv.save();
-    cv.font = "900 76px 'Space Grotesk',sans-serif";
-    cv.textAlign = 'center';
-    cv.textBaseline = 'middle';
-    cv.fillStyle = '#ffd709';
-    cv.shadowColor = 'rgba(255,215,9,0.9)';
-    cv.shadowBlur = 35;
-    cv.fillText(r.fin, W/2, H/2);
-    cv.restore();
+  reels.forEach(function(r) {
+    r.cells[1].classList.add('is-win');
+    r.cells[1].style.transform = 'scale(1.2)';
   });
-  document.body.style.transition = 'background-color .3s';
+  document.body.style.transition = 'background-color 0.3s';
   document.body.style.backgroundColor = '#ffd709';
-  setTimeout(() => {
-    document.body.style.transition = 'background-color .6s';
+  setTimeout(function() {
+    document.body.style.transition = 'background-color 0.6s';
     document.body.style.backgroundColor = '#150629';
-  }, 200);
+  }, 250);
 }
 
-// === Main spin ===
-async function spin() {
+function spin() {
   if (state.isSpinning || state.spinsLeft <= 0) return;
   state.isSpinning = true;
 
-  document.getElementById('spin-text').style.display  = 'none';
-  document.getElementById('spin-spinner').style.display = 'block';
-  document.getElementById('btn-spin').disabled = true;
-  document.getElementById('coin-rain').style.display = 'block';
+  var spinTxt = document.getElementById('spin-text');
+  var spinSpn = document.getElementById('spin-spinner');
+  var btnSpin = document.getElementById('btn-spin');
+  var coinRng = document.getElementById('coin-rain');
+  spinTxt.style.display = 'none';
+  spinSpn.style.display = 'block';
+  btnSpin.disabled = true;
+  coinRng.style.display = 'block';
 
-  const vals = [Math.random()*10|0, Math.random()*10|0, Math.random()*10|0];
+  reels.forEach(function(r) {
+    r.cells[1].classList.remove('is-win');
+    r.cells[1].style.transform = 'scale(1)';
+  });
 
-  // Kick off all 3 reels
-  startSpin(0, vals[0]);
-  startSpin(1, vals[1]);
-  startSpin(2, vals[2]);
+  var vals = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)];
 
-  // Stop each reel sequentially
-  await new Promise(r => setTimeout(r, 800));
-  stopSpin(0, vals[0]);
+  startReel(0, vals[0]);
+  startReel(1, vals[1]);
+  startReel(2, vals[2]);
 
-  await new Promise(r => setTimeout(r, 800));
-  stopSpin(1, vals[1]);
-
-  await new Promise(r => setTimeout(r, 800));
-  stopSpin(2, vals[2], () => {
-    document.getElementById('coin-rain').style.display = 'none';
-
-    const won = vals[0]===vals[1] && vals[1]===vals[2];
-    const amt = won ? PRIZES[vals[0]] * state.bet / 10 : 0;
-
+  setTimeout(function() { stopReel(0, vals[0]); }, 900);
+  setTimeout(function() { stopReel(1, vals[1]); }, 1700);
+  setTimeout(function() { stopReel(2, vals[2], function() {
+    coinRng.style.display = 'none';
+    var won = vals[0] === vals[1] && vals[1] === vals[2];
+    var amt = won ? PRIZES[vals[0]] * state.bet / 10 : 0;
     if (won) flashWin();
-
     state.spinsLeft--;
     sessionStorage.setItem('spinsLeft', state.spinsLeft);
     document.getElementById('spins-left').textContent = state.spinsLeft;
     document.getElementById('spins-display').textContent = state.spinsLeft;
-
-    const lw = document.getElementById('last-win');
-    const la = document.getElementById('last-win-amount');
+    var lw = document.getElementById('last-win');
+    var la = document.getElementById('last-win-amount');
     if (amt > 0) {
       lw.style.display = 'flex';
       la.textContent = '+' + amt + 'K';
-      la.className = 'font-headline font-bold ' + (amt>=500?'text-primary':'text-secondary') + ' text-lg';
+      la.className = 'font-headline font-bold ' + (amt >= 500 ? 'text-primary' : 'text-secondary') + ' text-lg';
     }
-
     sessionStorage.setItem('lastReels', JSON.stringify(vals));
     sessionStorage.setItem('lastWin', won);
     sessionStorage.setItem('lastWinAmount', amt);
-
     state.isSpinning = false;
-    document.getElementById('spin-text').style.display = 'block';
-    document.getElementById('spin-spinner').style.display = 'none';
-    document.getElementById('btn-spin').disabled = false;
-
+    spinTxt.style.display = 'block';
+    spinSpn.style.display = 'none';
+    btnSpin.disabled = false;
     if (state.spinsLeft <= 0) {
-      setTimeout(() => window.location.href = 'result.html', 1200);
+      setTimeout(function() { window.location.href = 'result.html'; }, 1500);
     }
-  });
+  }); }, 2500);
 }
 
 function adjustBet(d) {
-  state.betIndex = Math.max(0, Math.min(state.betOptions.length-1, state.betIndex+d));
+  state.betIndex = Math.max(0, Math.min(state.betOptions.length - 1, state.betIndex + d));
   state.bet = state.betOptions[state.betIndex];
-  document.getElementById('bet-display').textContent = state.bet+'K';
+  document.getElementById('bet-display').textContent = state.bet + 'K';
 }
+
 function goHome() { window.location.href = 'login.html'; }
 
 function init() {
-  if (!sessionStorage.getItem('userPhone')) { window.location.href='login.html'; return; }
-  const sl = parseInt(sessionStorage.getItem('spinsLeft') || '3');
+  if (!sessionStorage.getItem('userPhone')) { window.location.href = 'login.html'; return; }
+  var sl = parseInt(sessionStorage.getItem('spinsLeft') || '3');
   state.spinsLeft = sl;
   document.getElementById('spins-left').textContent = sl;
   document.getElementById('spins-display').textContent = sl;
-  document.getElementById('screen-game').style.display = sl<=0 ? 'none' : 'flex';
-  document.getElementById('screen-nospins').style.display = sl<=0 ? 'flex' : 'none';
-  R.forEach((r,i) => { r.strip=mkStrip(7); r.off=CTR*H; draw(i); });
+  document.getElementById('screen-game').style.display = sl <= 0 ? 'none' : 'flex';
+  document.getElementById('screen-nospins').style.display = sl <= 0 ? 'flex' : 'none';
+  reels.forEach(function(r) {
+    r.offset = H / 2;
+    setCells(r, [rnd(), 7, rnd()]);
+    applyOffset(r);
+    r.strip.style.transition = 'none';
+  });
 }
+
 init();
 </script>
 </body>
