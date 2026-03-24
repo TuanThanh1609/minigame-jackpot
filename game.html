@@ -230,10 +230,23 @@ tailwind.config = {
     filter: drop-shadow(0 0 20px rgba(255, 231, 146, 0.8));
   }
 
-  /* === SLOT REEL ANIMATION === */
-  .reel-strip {
-    transition: none;
+  /* === SLOT REEL: pure CSS animation === */
+  /* Strip scrolls using steps(3): position 0/33/66% of 330px = -55/-165/-275px */
+  .reel-scroll {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    /* Steps: 0=center at midpoint, 33%=top, 66%=bottom — then repeat */
+    animation: reelScroll 0.4s steps(1, end) infinite;
   }
+  @keyframes reelScroll {
+    0%   { transform: translateY(-55px); }   /* center cell at window midpoint */
+    33%  { transform: translateY(-165px); }  /* top cell at window midpoint */
+    66%  { transform: translateY(-275px); }  /* bottom cell at window midpoint */
+  }
+  .reel-scroll.is-spinning { animation-play-state: running; }
+  .reel-scroll.is-stopped  { animation-play-state: paused; transform: translateY(-55px) !important; }
+  .reel-scroll { transition: none; }
   .reel-cell {
     height: 110px;
     display: flex;
@@ -422,7 +435,7 @@ tailwind.config = {
         <!-- Reel 1: 3 visible slots top/middle/bottom -->
         <div class="bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
           <!-- Scrolling strip -->
-          <div id="reel1" class="reel-strip absolute left-0 w-full flex flex-col" style="top:0;height:330px">
+          <div id="reel1" class="reel-scroll absolute left-0 w-full flex flex-col is-stopped" style="height:330px;top:0">
             <div id="r1a" class="reel-cell reel-cell-top">0</div>
             <div id="r1b" class="reel-cell reel-cell-center">7</div>
             <div id="r1c" class="reel-cell reel-cell-bottom">0</div>
@@ -435,7 +448,7 @@ tailwind.config = {
 
         <!-- Reel 2 -->
         <div class="bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
-          <div id="reel2" class="reel-strip absolute left-0 w-full flex flex-col" style="top:0;height:330px">
+          <div id="reel2" class="reel-scroll absolute left-0 w-full flex flex-col is-stopped" style="height:330px;top:0">
             <div id="r2a" class="reel-cell reel-cell-top">1</div>
             <div id="r2b" class="reel-cell reel-cell-center">7</div>
             <div id="r2c" class="reel-cell reel-cell-bottom">1</div>
@@ -447,7 +460,7 @@ tailwind.config = {
 
         <!-- Reel 3 -->
         <div class="bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
-          <div id="reel3" class="reel-strip absolute left-0 w-full flex flex-col" style="top:0;height:330px">
+          <div id="reel3" class="reel-scroll absolute left-0 w-full flex flex-col is-stopped" style="height:330px;top:0">
             <div id="r3a" class="reel-cell reel-cell-top">2</div>
             <div id="r3b" class="reel-cell reel-cell-center">7</div>
             <div id="r3c" class="reel-cell reel-cell-bottom">2</div>
@@ -661,45 +674,34 @@ function spinLoop(idx) {
 function startReel(idx, fin) {
   var r = reels[idx];
   r.fin = fin;
-  r.offset = 0;
   r.spinning = true;
-  // Fill with random values
-  setCells(r, [rnd(), rnd(), rnd()]);
-  applyOffset(r);
-  if (r._intervalId) clearInterval(r._intervalId);
-  r._intervalId = setInterval(function() {
-    if (!r.spinning) { clearInterval(r._intervalId); return; }
-    r.offset += H;
-    if (r.offset >= H) {
-      r.offset = 0;
-      r.cells[0].textContent = r.cells[1].textContent;
-      r.cells[1].textContent = r.cells[2].textContent;
-      r.cells[2].textContent = rnd();
-    }
-    r.cells[1].textContent = rnd();
-    var pulse = 1 + Math.random() * 0.06 - 0.03;
-    r.cells[1].style.transform = 'scale(' + pulse.toFixed(2) + ')';
-    applyOffset(r);
-  }, 80); // change number every 80ms
+  r.strip.classList.remove('is-stopped');
+  r.strip.classList.add('is-spinning');
+  if (r._interval) clearInterval(r._interval);
+  r._interval = setInterval(function() {
+    if (!r.spinning) { clearInterval(r._interval); return; }
+    // Randomize all 3 cells while spinning
+    setCells(r, [rnd(), rnd(), rnd()]);
+  }, 80);
 }
 
 function stopReel(idx, fin, cb) {
   var r = reels[idx];
   r.spinning = false;
-  if (r._intervalId) { clearInterval(r._intervalId); r._intervalId = null; }
-  cancelAnimationFrame(r.animId);
+  if (r._interval) { clearInterval(r._interval); r._interval = null; }
+  r.fin = fin;
+  // Set final value: center=fin, top/bottom=random
   setCells(r, [rnd(), fin, rnd()]);
-  r.strip.style.transition = 'top 0.6s cubic-bezier(0.22,1,0.36,1)';
-  r.offset = 0;
-  applyOffset(r);
+  // CSS animation: pause at position 0 (= center cell)
+  r.strip.classList.remove('is-spinning');
+  r.strip.classList.add('is-stopped');
   r.cells[1].classList.add('is-win');
   r.cells[1].style.transform = 'scale(1.08)';
   setTimeout(function() {
-    r.strip.style.transition = 'none';
     r.cells[1].classList.remove('is-win');
     r.cells[1].style.transform = 'scale(1)';
     if (cb) cb();
-  }, 650);
+  }, 700);
 }
 
 function flashWin() {
@@ -787,10 +789,9 @@ function init() {
   document.getElementById('screen-game').style.display = sl <= 0 ? 'none' : 'flex';
   document.getElementById('screen-nospins').style.display = sl <= 0 ? 'flex' : 'none';
   reels.forEach(function(r) {
-    r.offset = H / 2;
+    r.strip.classList.remove('is-spinning');
+    r.strip.classList.add('is-stopped');
     setCells(r, [rnd(), 7, rnd()]);
-    applyOffset(r);
-    r.strip.style.transition = 'none';
   });
 }
 
