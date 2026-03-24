@@ -623,7 +623,10 @@ var reels = [
   }
 ];
 
-function rnd() { return SYMS[Math.floor(Math.random() * 10)]; }
+function rnd() { return Math.floor(Math.random() * 10); }
+
+// Lucky: 15% chance để trúng (gần đúng)
+function lucky() { return Math.floor(Math.random() * 10) < 9 ? Math.floor(Math.random() * 10) : Math.floor(Math.random() * 3) === 0 ? 7 : Math.floor(Math.random() * 10); }
 
 function setCells(r, vals) {
   r.cells[0].textContent = vals[0];
@@ -729,7 +732,17 @@ function spin() {
     r.cells[1].style.transform = 'scale(1)';
   });
 
-  var vals = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)];
+  // 15% chance trúng (3 số giống nhau)
+  var isLucky = Math.random() < 0.15;
+  var vals;
+  if (isLucky) {
+    var n = Math.floor(Math.random() * 10);
+    vals = [n, n, n];
+  } else {
+    vals = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)];
+    // Ensure they're NOT all the same
+    if (vals[0] === vals[1] && vals[1] === vals[2]) vals[2] = (vals[2] + 1) % 10;
+  }
 
   startReel(0, vals[0]);
   startReel(1, vals[1]);
