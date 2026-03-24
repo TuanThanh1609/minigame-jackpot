@@ -236,17 +236,11 @@ tailwind.config = {
     position: absolute;
     left: 0;
     width: 100%;
-    /* Steps: 0=center at midpoint, 33%=top, 66%=bottom — then repeat */
-    animation: reelScroll 0.4s steps(1, end) infinite;
+    top: -55px;
+    transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  @keyframes reelScroll {
-    0%   { transform: translateY(-55px); }   /* center cell at window midpoint */
-    33%  { transform: translateY(-165px); }  /* top cell at window midpoint */
-    66%  { transform: translateY(-275px); }  /* bottom cell at window midpoint */
-  }
-  .reel-scroll.is-spinning { animation-play-state: running; }
-  .reel-scroll.is-stopped  { animation-play-state: paused; transform: translateY(-55px) !important; }
-  .reel-scroll { transition: none; }
+  .reel-scroll.is-spinning { top: 0px; }
+  .reel-scroll.is-stopped  { top: -55px; }
   .reel-cell {
     height: 110px;
     display: flex;
@@ -435,7 +429,7 @@ tailwind.config = {
         <!-- Reel 1: 3 visible slots top/middle/bottom -->
         <div class="bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
           <!-- Scrolling strip -->
-          <div id="reel1" class="reel-scroll absolute left-0 w-full flex flex-col is-stopped" style="height:330px;top:0">
+          <div id="reel1" class="reel-scroll absolute left-0 w-full flex flex-col is-stopped" style="height:330px">
             <div id="r1a" class="reel-cell reel-cell-top">0</div>
             <div id="r1b" class="reel-cell reel-cell-center">7</div>
             <div id="r1c" class="reel-cell reel-cell-bottom">0</div>
@@ -448,7 +442,7 @@ tailwind.config = {
 
         <!-- Reel 2 -->
         <div class="bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
-          <div id="reel2" class="reel-scroll absolute left-0 w-full flex flex-col is-stopped" style="height:330px;top:0">
+          <div id="reel2" class="reel-scroll absolute left-0 w-full flex flex-col is-stopped" style="height:330px">
             <div id="r2a" class="reel-cell reel-cell-top">1</div>
             <div id="r2b" class="reel-cell reel-cell-center">7</div>
             <div id="r2c" class="reel-cell reel-cell-bottom">1</div>
@@ -460,7 +454,7 @@ tailwind.config = {
 
         <!-- Reel 3 -->
         <div class="bg-[#0a0014] rounded overflow-hidden relative" style="height:110px">
-          <div id="reel3" class="reel-scroll absolute left-0 w-full flex flex-col is-stopped" style="height:330px;top:0">
+          <div id="reel3" class="reel-scroll absolute left-0 w-full flex flex-col is-stopped" style="height:330px">
             <div id="r3a" class="reel-cell reel-cell-top">2</div>
             <div id="r3b" class="reel-cell reel-cell-center">7</div>
             <div id="r3c" class="reel-cell reel-cell-bottom">2</div>
