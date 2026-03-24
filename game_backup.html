@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#150629"/>
+<title>777 Royale - Quay Số</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-20..200&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<script>
+// === Config ===
+var PRIZES = {0:0,1:0,2:0,3:50,4:100,5:100,6:200,7:500,8:100,9:100};
+var SPIN_MS = 70;
+
+var state = {
+  spinsLeft: parseInt(sessionStorage.getItem('spinsLeft') || '3'),
+  isSpinning: false,
+  bet: 10,
+  betOptions: [5,10,20,50,100],
+  betIndex: 1
+};
+
+var reels = [
+  {
+    strip: document.getElementById('reel1'),
+    cells: [document.getElementById('r1a'), document.getElementById('r1b'), document.getElementById('r1c')],
+    _interval: null, fin: 7
+  },
+  {
+    strip: document.getElementById('reel2'),
+    cells: [document.getElementById('r2a'), document.getElementById('r2b'), document.getElementById('r2c')],
+    _interval: null, fin: 7
+  },
+  {
+    strip: document.getElementById('reel3'),
+    cells: [document.getElementById('r3a'), document.getElementById('r3b'), document.getElementById('r3c')],
+    _interval: null, fin: 7
+  }
+];
+
+function rnd() { return Math.floor(Math.random() * 10); }
+
+function setCells(r, vals) {
+  r.cells[0].textContent = vals[0];
+  r.cells[1].textContent = vals[1];
+  r.cells[2].textContent = vals[2];
+}
+
+function startSpin(idx) {
+  var r = reels[idx];
+  r.strip.classList.remove('is-stopped');
+  r.strip.classList.add('is-spinning');
+  r._interval = setInterval(function() {
+    setCells(r, [rnd(), rnd(), rnd()]);
+    var s = 1 + Math.random() * 0.08 - 0.04;
+    r.cells[1].style.transform = 'scale(' + s.toFixed(2) + ')';
+  }, SPIN_MS);
+}
+
+function stopSpin(idx, fin, cb) {
+  var r = reels[idx];
+  if (r._interval) { clearInterval(r._interval); r._interval = null; }
+  r.fin = fin;
+  setCells(r, [rnd(), fin, rnd()]);
+  r.strip.classList.remove('is-spinning');
+  r.strip.classList.add('is-stopped');
+  r.cells[1].classList.add('is-win');
+  r.cells[1].style.transform = 'scale(1.1)';
+  setTimeout(function() {
+    r.cells[1].classList.remove('is-win');
+    r.cells[1].style.transform = 'scale(1)';
+    if (cb) cb();
+  }, 700);
+}
+
+function flashWin() {
+  reels.forEach(function(r) {
+    r.cells[1].classList.add('is-win');
+    r.cells[1].style.transform = 'scale(1.2)';
+  });
+  document.body.style.transition = 'background-color 0.3s';
+  document.body.style.backgroundColor = '#ffd709';
+  setTimeout(function() {
+    document.body.style.transition = 'background-color 0.6s';
+    document.body.style.backgroundColor = '#150629';
+  }, 250);
+}
+
+function spin() {
+  if (state.isSpinning || state.spinsLeft <= 0) return;
+  state.isSpinning = true;
+  var spinTxt = document.getElementById('spin-text');
+  var spinSpn = document.getElementById('spin-spinner');
+  var btnSpin = document.getElementById('btn-spin');
+  var coinRng = document.getElementById('coin-rain');
+  spinTxt.style.display = 'none';
+  spinSpn.style.display = 'block';
+  btnSpin.disabled = true;
+  coinRng.style.display = 'block';
+  reels.forEach(function(r) {
+    r.cells[1].classList.remove('is-win');
+    r.cells[1].style.transform = 'scale(1)';
+  });
+  var vals = [rnd(), rnd(), rnd()];
+  startSpin(0);
+  startSpin(1);
+  startSpin(2);
+  setTimeout(function() { stopSpin(0, vals[0]); }, 900);
+  setTimeout(function() { stopSpin(1, vals[1]); }, 1700);
+  setTimeout(function() {
+    stopSpin(2, vals[2], function() {
+      coinRng.style.display = 'none';
+      var won = vals[0] === vals[1] && vals[1] === vals[2];
+      var amt = won ? PRIZES[vals[0]] * state.bet / 10 : 0;
+      if (won) flashWin();
+      state.spinsLeft--;
+      sessionStorage.setItem('spinsLeft', state.spinsLeft);
+      document.getElementById('spins-left').textContent = state.spinsLeft;
+      document.getElementById('spins-display').textContent = state.spinsLeft;
+      var lw = document.getElementById('last-win');
+      var la = document.getElementById('last-win-amount');
+      if (amt > 0) {
+        lw.style.display = 'flex';
+        la.textContent = '+' + amt + 'K';
+        la.className = 'font-headline font-bold ' + (amt >= 500 ? 'text-primary' : 'text-secondary') + ' text-lg';
+      }
+      sessionStorage.setItem('lastReels', JSON.stringify(vals));
+      sessionStorage.setItem('lastWin', won);
+      sessionStorage.setItem('lastWinAmount', amt);
+      state.isSpinning = false;
+      spinTxt.style.display = 'block';
+      spinSpn.style.display = 'none';
+      btnSpin.disabled = false;
+      if (state.spinsLeft <= 0) {
+        setTimeout(function() { window.location.href = 'result.html'; }, 1500);
+      }
+    });
+  }, 2500);
+}
+
+function adjustBet(d) {
+  state.betIndex = Math.max(0, Math.min(state.betOptions.length - 1, state.betIndex + d));
+  state.bet = state.betOptions[state.betIndex];
+  document.getElementById('bet-display').textContent = state.bet + 'K';
+}
+
+function goHome() { window.location.href = 'login.html'; }
+
+function init() {
+  if (!sessionStorage.getItem('userPhone')) { window.location.href = 'login.html'; return; }
+  var sl = parseInt(sessionStorage.getItem('spinsLeft') || '3');
+  state.spinsLeft = sl;
+  document.getElementById('spins-left').textContent = sl;
+  document.getElementById('spins-display').textContent = sl;
+  document.getElementById('screen-game').style.display = sl <= 0 ? 'none' : 'flex';
+  document.getElementById('screen-nospins').style.display = sl <= 0 ? 'flex' : 'none';
+  reels.forEach(function(r) {
+    r.strip.classList.remove('is-spinning');
+    r.strip.classList.add('is-stopped');
+    setCells(r, [rnd(), 7, rnd()]);
+  });
+}
+
+init();
+</script>
+
+</body>
+</html>

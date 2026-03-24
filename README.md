@@ -1,6 +1,6 @@
 # 🎰 777 ROYALE — Jackpot Minigame
 
-Game quay số trúng thưởng 3-reel slot machine, thiết kế cho **Facebook Messenger WebView**, tích hợp **NocoDB** để lưu trữ leads và kết quả.
+Game quay số trúng thưởng 3-reel slot machine, thiết kế cho **Facebook Messenger WebView**, tích hợp **Supabase** để lưu trữ leads và kết quả.
 
 ## 🕹️ Gameplay
 
@@ -22,7 +22,7 @@ Game quay số trúng thưởng 3-reel slot machine, thiết kế cho **Facebook
 │   ├── package.json
 │   └── .env.example
 ├── nocodb/
-│   └── schema.json     # NocoDB table schema
+│   └── schema.json     # Legacy schema reference (NocoDB cũ)
 └── CLAUDE.md           # Claude Code guidance
 ```
 
@@ -38,32 +38,38 @@ npx serve .
 ```bash
 cd webhook
 cp .env.example .env
-# Edit .env với NocoDB credentials
+# Edit .env với Supabase credentials
 npm install
 npm start
 ```
 
-## ⚙️ Cấu hình NocoDB
+## ⚙️ Cấu hình Supabase
 
-1. Tạo project mới trên [NocoDB](https://nocodb.com)
-2. Tạo 2 bảng theo `nocodb/schema.json`
-3. Copy API token từ Account Settings
-4. Thêm vào environment variables (Vercel)
+1. Tạo project Supabase (hoặc dùng project có sẵn)
+2. Tạo 2 bảng `leads` và `spin_results` (schema tương đương phần cũ)
+3. Lấy `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+4. Thêm các biến môi trường vào Vercel / server webhook
 
-## 🔗 NocoDB API Endpoints
+## 🔗 Supabase API Endpoints
 
 ```javascript
 // Base URL + Headers
-const NOCO_URL = 'https://your-nocodb.nocodb.com';
-const NOCO_TOKEN = 'your-token';
+const SUPABASE_URL = 'https://<project-id>.supabase.co';
+const SUPABASE_ANON_KEY = 'your-anon-key';
+
+const headers = {
+  'Content-Type': 'application/json',
+  apikey: SUPABASE_ANON_KEY,
+  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+};
 
 // Save lead
-POST ${NOCO_URL}/api/v1/db/data/v1/{project}/leads
+POST ${SUPABASE_URL}/rest/v1/leads
 { phone: "09xxxxxxx", created_at: "..." }
 
-// Save spin
-POST ${NOCO_URL}/api/v1/db/data/v1/{project}/spin_results
-{ phone, reel1, reel2, reel3, is_win, win_amount, prize_code }
+// Save spin result
+POST ${SUPABASE_URL}/rest/v1/spin_results
+{ lead_id, phone, reel1, reel2, reel3, is_win, prize_code }
 ```
 
 ## 🌐 Deploy lên Vercel
@@ -79,8 +85,9 @@ git push -u origin main
 # 2. Deploy trên Vercel
 # - Import repo từ GitHub
 # - Set Environment Variables:
-#   NOCO_URL = your-nocodb-url
-#   NOCO_TOKEN = your-nocodb-token
+#   SUPABASE_URL = https://<project-id>.supabase.co
+#   SUPABASE_ANON_KEY = your-anon-key
+#   SUPABASE_SERVICE_ROLE_KEY = your-service-role-key
 # - Deploy!
 ```
 
@@ -89,7 +96,7 @@ git push -u origin main
 1. Trên Meta for Developers, tạo Facebook App
 2. Thêm **Messenger** product
 3. Setup **WebView** via Send API hoặc URL Button
-4. Set webhook URL: `https://your-vercel-url.com/api/webhook/nocodb`
+4. Nếu dùng webhook server, kiểm tra endpoint: `https://your-vercel-url.com/api/health`
 5. Configure Page Subscription Messages
 
 ## 🎨 Design System

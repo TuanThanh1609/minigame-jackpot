@@ -572,6 +572,23 @@ tailwind.config = {
 var H = 110;
 var SYMS = [0,1,2,3,4,5,6,7,8,9];
 var PRIZES = {0:0,1:0,2:0,3:50,4:100,5:100,6:200,7:500,8:100,9:100};
+var API_TIMEOUT_MS = 10000;
+
+// === Supabase Config ===
+var SB_BASE = 'https://db.cdp.vn/rest/v1';
+var SB_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc3NDMyNzE0MCwiZXhwIjo0OTMwMDAwNzQwLCJyb2xlIjoic2VydmljZV9yb2xlIn0.6qqm8ZjHqQRMJEH8ra-OKcKXkQq3S3oGxhftM9J687A',
+  'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc3NDMyNzE0MCwiZXhwIjo0OTMwMDAwNzQwLCJyb2xlIjoic2VydmljZV9yb2xlIn0.6qqm8ZjHqQRMJEH8ra-OKcKXkQq3S3oGxhftM9J687A',
+};
+
+function generatePrizeCode(phone, r1, r2, r3) {
+  var date = new Date();
+  var dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
+  var phoneLast = (phone || '0000').slice(-4);
+  var match = [r1, r2, r3].join('');
+  return 'NR7-' + dateStr + '-' + phoneLast + '-' + match;
+}
 
 var state = {
   spinsLeft: parseInt(sessionStorage.getItem('spinsLeft') || '3'),
@@ -714,6 +731,50 @@ function flashWin() {
   }, 250);
 }
 
+async function saveSpinResult(vals, won, amt) {
+  try {
+    var sessionId = sessionStorage.getItem('sessionId');
+    var leadId   = sessionStorage.getItem('leadId');
+    if (!sessionId || !leadId) return;
+
+    var controller = new AbortController();
+    var timeoutId  = setTimeout(function() { controller.abort(); }, API_TIMEOUT_MS);
+
+    var res = await fetch(SB_BASE + '/rpc/record_spin', {
+      method: 'POST',
+      headers: SB_HEADERS,
+      body: JSON.stringify({
+        p_session_id: sessionId,
+        p_lead_id:    leadId,
+        p_reel1:      vals[0],
+        p_reel2:      vals[1],
+        p_reel3:      vals[2],
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    if (!res.ok) return;
+
+    var data = await res.json();
+    var spinData = (data && data[0]) ? data[0] : data;
+
+    if (spinData && spinData.prize_code) {
+      sessionStorage.setItem('prizeCode', spinData.prize_code);
+    }
+    // Update spinsLeft from server (source of truth)
+    if (spinData && spinData.spins_left !== undefined) {
+      sessionStorage.setItem('spinsLeft', spinData.spins_left);
+      state.spinsLeft = spinData.spins_left;
+    }
+    if (spinData && spinData.session_status) {
+      sessionStorage.setItem('sessionStatus', spinData.session_status);
+    }
+  } catch (err) {
+    console.warn('Save spin to Supabase failed:', err);
+  }
+}
+
 function spin() {
   if (state.isSpinning || state.spinsLeft <= 0) return;
   state.isSpinning = true;
@@ -750,7 +811,7 @@ function spin() {
 
   setTimeout(function() { stopReel(0, vals[0]); }, 900);
   setTimeout(function() { stopReel(1, vals[1]); }, 1700);
-  setTimeout(function() { stopReel(2, vals[2], function() {
+  setTimeout(function() { stopReel(2, vals[2], async function() {
     coinRng.style.display = 'none';
     var won = vals[0] === vals[1] && vals[1] === vals[2];
     var amt = won ? PRIZES[vals[0]] * state.bet / 10 : 0;
@@ -766,9 +827,19 @@ function spin() {
       la.textContent = '+' + amt + 'K';
       la.className = 'font-headline font-bold ' + (amt >= 500 ? 'text-primary' : 'text-secondary') + ' text-lg';
     }
+    var prizeCode = generatePrizeCode(
+      sessionStorage.getItem('userPhone'), vals[0], vals[1], vals[2]
+    );
     sessionStorage.setItem('lastReels', JSON.stringify(vals));
-    sessionStorage.setItem('lastWin', won);
+    sessionStorage.setItem('lastWin', won ? 'true' : 'false');
     sessionStorage.setItem('lastWinAmount', amt);
+    if (won) {
+      sessionStorage.setItem('prizeCode', prizeCode);
+      sessionStorage.setItem('winAmount', amt);
+    }
+
+    await saveSpinResult(vals, won, amt);
+
     state.isSpinning = false;
     spinTxt.style.display = 'block';
     spinSpn.style.display = 'none';
@@ -788,7 +859,11 @@ function adjustBet(d) {
 function goHome() { window.location.href = 'login.html'; }
 
 function init() {
-  if (!sessionStorage.getItem('userPhone')) { window.location.href = 'login.html'; return; }
+  // Block direct access: must come from login.html (sessionId is set there)
+  if (!sessionStorage.getItem('sessionId') || !sessionStorage.getItem('userPhone')) {
+    window.location.href = 'login.html';
+    return;
+  }
   var sl = parseInt(sessionStorage.getItem('spinsLeft') || '3');
   state.spinsLeft = sl;
   document.getElementById('spins-left').textContent = sl;

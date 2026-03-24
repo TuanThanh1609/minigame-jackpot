@@ -407,20 +407,63 @@ tailwind.config = {
 </nav>
 
 <script>
+// === Supabase Config ===
+const SB_BASE = 'https://db.cdp.vn/rest/v1';
+const SB_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc3NDMyNzE0MCwiZXhwIjo0OTMwMDAwNzQwLCJyb2xlIjoic2VydmljZV9yb2xlIn0.6qqm8ZjHqQRMJEH8ra-OKcKXkQq3S3oGxhftM9J687A',
+  'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc3NDMyNzE0MCwiZXhwIjo0OTMwMDAwNzQwLCJyb2xlIjoic2VydmljZV9yb2xlIn0.6qqm8ZjHqQRMJEH8ra-OKcKXkQq3S3oGxhftM9J687A',
+};
+
 // === Result Screen Logic ===
-function init() {
-  const reels = JSON.parse(sessionStorage.getItem('lastReels') || '[7,7,7]');
-  const won = sessionStorage.getItem('lastWin') === 'true';
-  const winAmount = parseInt(sessionStorage.getItem('lastWinAmount') || '0');
+async function init() {
+  // Fetch the latest spin result from Supabase (source of truth)
+  const sessionId = sessionStorage.getItem('sessionId');
+  const phone     = sessionStorage.getItem('userPhone');
+
+  let won      = sessionStorage.getItem('lastWin') === 'true';
+  let winAmount = parseInt(sessionStorage.getItem('winAmount') || sessionStorage.getItem('lastWinAmount') || '0');
+  let reels    = JSON.parse(sessionStorage.getItem('lastReels') || '[7,7,7]');
+  let prizeCode = sessionStorage.getItem('prizeCode') || '';
+
+  if (sessionId) {
+    try {
+      const resp = await fetch(
+        SB_BASE + '/spin_results?session_id=eq.' + sessionId + '&order=created_at.desc&limit=1',
+        { headers: SB_HEADERS }
+      );
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && data.length > 0) {
+          const last = data[0];
+          won       = last.is_win === true || last.is_win === 'true';
+          winAmount = last.prize_amount || 0;
+          reels     = [last.reel1, last.reel2, last.reel3];
+          if (last.prize_code) {
+            prizeCode = last.prize_code;
+            sessionStorage.setItem('prizeCode', prizeCode);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Could not fetch from Supabase, using local sessionStorage:', e);
+    }
+  }
+
+  // Fallback: re-calculate win from reels (defensive)
+  if (reels[0] === reels[1] && reels[1] === reels[2]) {
+    won = true;
+    winAmount = winAmount > 0 ? winAmount : 777; // jackpot = 777K
+  }
 
   if (won) {
-    showWinScreen(reels, winAmount);
+    showWinScreen(reels, winAmount, prizeCode);
   } else {
     showLoseScreen(reels);
   }
 }
 
-function showWinScreen(reels, winAmount) {
+function showWinScreen(reels, winAmount, prizeCode) {
   document.getElementById('screen-win').style.display = 'flex';
   document.getElementById('bg-glow-win').style.opacity = '1';
   document.getElementById('coin-rain').style.display = 'block';
@@ -443,12 +486,10 @@ function showWinScreen(reels, winAmount) {
   document.getElementById('prize-name').textContent = prizeName;
   document.getElementById('result-emoji').textContent = reels[0] === 7 ? '🏆' : '🎊';
 
-  // Generate code after a delay
-  setTimeout(() => {
-    const code = generatePrizeCode(reels);
-    document.getElementById('prize-code').textContent = code;
-    sessionStorage.setItem('prizeCode', code);
-  }, 1500);
+  // Show prize code (prefer server code > local code)
+  const code = prizeCode || generatePrizeCode(reels);
+  document.getElementById('prize-code').textContent = code;
+  sessionStorage.setItem('prizeCode', code);
 }
 
 function showLoseScreen(reels) {

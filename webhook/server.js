@@ -1,19 +1,38 @@
 /**
- * 777 ROYALE - Webhook Server
- * Xử lý kết quả game từ NocoDB webhook hoặc trực tiếp từ client
+ * 777 ROYALE - Webhook/API Server (Supabase)
  *
- * Deployment: vercel or any Node.js host
+ * Deployment: Vercel hoặc Node.js host
  * Usage:
- *   - NocoDB webhook → POST /api/webhook/nocodb
- *   - Client callback → POST /api/result
+ *   - Create/find lead      → POST /api/lead
+ *   - Save spin result      → POST /api/spin
+ *   - Final session summary → POST /api/result
+ *   - Leaderboard           → GET  /api/leaderboard
  */
 
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const app = express();
+
+// === CONFIG ===
+const SUPABASE_PROJECT_ID = process.env.SUPABASE_PROJECT_ID || 'vyqktoyvungqtnhoqhpc';
+const SUPABASE_URL = process.env.SUPABASE_URL || `https://${SUPABASE_PROJECT_ID}.supabase.co`;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE || '';
+
+if (!SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY. Backend must use service role key in production.');
+}
+
+const supabase = createClient(
+  SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY,
+  {
+    auth: { persistSession: false, autoRefreshToken: false }
+  }
+);
 
 // === MIDDLEWARE ===
 app.use(helmet());
@@ -22,14 +41,11 @@ app.use(cors({
     ? process.env.ALLOWED_ORIGINS.split(',')
     : '*',
   methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'xc-token']
+  allowedHeaders: ['Content-Type', 'Authorization', 'apikey']
 }));
 app.use(express.json());
 
-// === NocoDB REST proxy ===
-// Proxy requests to NocoDB to avoid CORS issues from client
-const NOCO_URL = process.env.NOCO_URL || '';
-const NOCO_TOKEN = process.env.NOCO_TOKEN || '';
+// === API ===
 
 /**
  * POST /api/lead
@@ -38,156 +54,119 @@ const NOCO_TOKEN = process.env.NOCO_TOKEN || '';
 app.post('/api/lead', async (req, res) => {
   try {
     const { phone } = req.body;
+
     if (!phone) {
       return res.status(400).json({ error: 'Missing phone' });
     }
 
-    // Check if lead exists
-    const checkRes = await fetch(
-      `${NOCO_URL}/api/v1/db/data/v1/jackpot_777/leads?where=(phone,eq,${phone})`,
-      { headers: { 'xc-token': NOCO_TOKEN } }
-    );
-    const checkData = await checkRes.json();
+    const { data: existingLeads, error: findError } = await supabase
+      .from('leads')
+      .select('*')
+      .eq('phone', phone)
+      .limit(1);
 
-    if (checkData.list && checkData.list.length > 0) {
-      // Lead exists — return existing
-      return res.json({ exists: true, lead: checkData.list[0] });
+    if (findError) {
+      console.error('Lead lookup error:', findError);
+      return res.status(500).json({ error: 'Failed to find lead' });
     }
 
-    // Create new lead
-    const createRes = await fetch(
-      `${NOCO_URL}/api/v1/db/data/v1/jackpot_777/leads`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'xc-token': NOCO_TOKEN
-        },
-        body: JSON.stringify({
-          phone,
-          created_at: new Date().toISOString(),
-          total_spins: 0,
-          total_wins: 0,
-          total_prize: 0
-        })
-      }
-    );
-    const newLead = await createRes.json();
-    return res.json({ exists: false, lead: newLead });
+    if (existingLeads && existingLeads.length > 0) {
+      return res.json({ exists: true, lead: existingLeads[0] });
+    }
 
+    const { data: newLead, error: insertError } = await supabase
+      .from('leads')
+      .insert({
+        phone,
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('Lead insert error:', insertError);
+      return res.status(500).json({ error: 'Failed to create lead' });
+    }
+
+    return res.json({ exists: false, lead: newLead });
   } catch (err) {
     console.error('Lead error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 /**
  * POST /api/spin
- * Lưu kết quả spin vào NocoDB
+ * Lưu kết quả spin vào Supabase
  */
 app.post('/api/spin', async (req, res) => {
   try {
-    const { lead_id, phone, reel1, reel2, reel3, is_win, win_amount, bet, prize_code } = req.body;
+    const { lead_id, phone, reel1, reel2, reel3 } = req.body;
 
-    if (!phone || reel1 === undefined) {
+    if (!phone || reel1 === undefined || reel2 === undefined || reel3 === undefined) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const isWin = reel1 === reel2 && reel2 === reel3;
-    const finalPrizeCode = prize_code || generatePrizeCode(phone, reel1, reel2, reel3);
+    const prizeCode = isWin
+      ? generatePrizeCode(phone, reel1, reel2, reel3)
+      : null;
 
-    // Save spin result
-    const spinRes = await fetch(
-      `${NOCO_URL}/api/v1/db/data/v1/jackpot_777/spin_results`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'xc-token': NOCO_TOKEN
-        },
-        body: JSON.stringify({
-          phone,
-          lead_id: lead_id || null,
-          reel1,
-          reel2,
-          reel3,
-          is_win: isWin,
-          win_amount: isWin ? win_amount : 0,
-          bet: bet || 10,
-          prize_name: getPrizeName(reel1, isWin),
-          prize_code: isWin ? finalPrizeCode : null,
-          spins_remaining: Math.max(0, 3 - 1),
-          created_at: new Date().toISOString()
-        })
-      }
-    );
-    const spinData = await spinRes.json();
+    const { data: spinData, error: spinError } = await supabase
+      .from('spin_results')
+      .insert({
+        phone,
+        lead_id: lead_id || null,
+        reel1,
+        reel2,
+        reel3,
+        is_win: isWin,
+        prize_code: prizeCode,
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
 
-    // Update lead stats if won
-    if (isWin && lead_id) {
-      const updateRes = await fetch(
-        `${NOCO_URL}/api/v1/db/data/v1/jackpot_777/leads/${lead_id}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'xc-token': NOCO_TOKEN
-          },
-          body: JSON.stringify({
-            total_wins: '+1',
-            total_prize: `+${win_amount || 0}`
-          })
-        }
-      );
+    if (spinError) {
+      console.error('Spin insert error:', spinError);
+      return res.status(500).json({ error: 'Failed to save spin result' });
     }
 
-    res.json({
+    return res.json({
       success: true,
       is_win: isWin,
-      prize_code: isWin ? finalPrizeCode : null,
-      spin_id: spinData.id
+      prize_code: prizeCode,
+      spin_id: spinData?.id || null
     });
-
   } catch (err) {
     console.error('Spin error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 /**
  * GET /api/leaderboard
- * Lấy top winners
+ * Lấy winners gần đây
  */
-app.get('/api/leaderboard', async (req, res) => {
+app.get('/api/leaderboard', async (_req, res) => {
   try {
-    const apiRes = await fetch(
-      `${NOCO_URL}/api/v1/db/data/v1/jackpot_777/spin_results?sort=-win_amount&limit=10&where=(is_win,eq,true)`,
-      { headers: { 'xc-token': NOCO_TOKEN } }
-    );
-    const data = await apiRes.json();
-    res.json(data.list || []);
+    const { data, error } = await supabase
+      .from('spin_results')
+      .select('*')
+      .eq('is_win', true)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (error) {
+      console.error('Leaderboard error:', error);
+      return res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    }
+
+    return res.json(data || []);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch leaderboard' });
+    console.error('Leaderboard exception:', err);
+    return res.status(500).json({ error: 'Failed to fetch leaderboard' });
   }
-});
-
-/**
- * POST /api/webhook/nocodb
- * Nhận webhook từ NocoDB (table events)
- */
-app.post('/api/webhook/nocodb', (req, res) => {
-  const { type, data, table } = req.body;
-
-  // Log webhook for debugging
-  console.log(`[Webhook] ${table} - ${type}`, data);
-
-  // Handle specific events
-  if (table === 'spin_results' && type === 'insert' && data?.is_win) {
-    // Optional: trigger notification, update leaderboard cache, etc.
-    console.log(`[WINNER] ${data.phone} won ${data.win_amount}K`);
-  }
-
-  res.json({ received: true });
 });
 
 /**
@@ -199,13 +178,7 @@ app.post('/api/result', (req, res) => {
 
   console.log(`[RESULT] ${phone} - ${spins_played} spins, ${total_wins} wins, ${total_prize} total prize`);
 
-  // Here you could:
-  // - Send notification via Facebook Messenger API
-  // - Send SMS/Email
-  // - Trigger CRM workflow
-  // - Log to analytics
-
-  res.json({
+  return res.json({
     success: true,
     message: 'Result recorded',
     summary: {
@@ -221,11 +194,18 @@ app.post('/api/result', (req, res) => {
  * GET /api/health
  * Health check endpoint
  */
-app.get('/api/health', (req, res) => {
-  res.json({
+app.get('/api/health', (_req, res) => {
+  const hasServiceKey = Boolean(SUPABASE_SERVICE_ROLE_KEY);
+
+  return res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    service: '777-royale-webhook'
+    service: '777-royale-supabase-api',
+    supabase: {
+      url: SUPABASE_URL,
+      configured: hasServiceKey,
+      keyMode: hasServiceKey ? 'service_role' : 'none'
+    }
   });
 });
 
@@ -238,23 +218,12 @@ function generatePrizeCode(phone, r1, r2, r3) {
   return `NR7-${dateStr}-${phoneLast}-${match}`;
 }
 
-function getPrizeName(matchedValue, isWin) {
-  if (!isWin) return 'Không trúng';
-  const names = {
-    0: 'Trúng nhỏ', 1: 'Thử lại', 2: 'Lần sau nhé',
-    3: 'Trúng 50K', 4: 'Trúng 100K', 5: 'Trúng 100K',
-    6: 'Trúng 200K', 7: '🎉 JACKPOT 500K!', 8: 'Trúng 100K', 9: 'Trúng 100K'
-  };
-  return names[matchedValue] || 'Trúng thưởng';
-}
-
 // === START ===
 const PORT = process.env.PORT || 3000;
 if (process.env.VERCEL) {
-  // Vercel serverless
   module.exports = app;
 } else {
   app.listen(PORT, () => {
-    console.log(`🎰 777 Royale Webhook Server running on port ${PORT}`);
+    console.log(`🎰 777 Royale Supabase API running on port ${PORT}`);
   });
 }

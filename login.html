@@ -406,6 +406,13 @@ tailwind.config = {
   const btnContinue = document.getElementById('btn-continue');
   const btnText = document.getElementById('btn-text');
   const btnSpinner = document.getElementById('btn-spinner');
+  // === Supabase Config ===
+  const SB_BASE = 'https://db.cdp.vn/rest/v1';
+  const SB_HEADERS = {
+    'Content-Type': 'application/json',
+    'apikey': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc3NDMyNzE0MCwiZXhwIjo0OTMwMDAwNzQwLCJyb2xlIjoic2VydmljZV9yb2xlIn0.6qqm8ZjHqQRMJEH8ra-OKcKXkQq3S3oGxhftM9J687A',
+    'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc3NDMyNzE0MCwiZXhwIjo0OTMwMDAwNzQwLCJyb2xlIjoic2VydmljZV9yb2xlIn0.6qqm8ZjHqQRMJEH8ra-OKcKXkQq3S3oGxhftM9J687A',
+  };
 
   // Format phone as user types
   phoneInput.addEventListener('input', (e) => {
@@ -432,43 +439,33 @@ tailwind.config = {
     btnSpinner.style.display = 'block';
     btnContinue.disabled = true;
 
-    // Save to sessionStorage
-    sessionStorage.setItem('userPhone', phone);
-    sessionStorage.setItem('spinsLeft', '3');
-
-    // Save lead to NocoDB (if configured)
-    await saveLead(phone);
-
-    // Redirect to game
-    setTimeout(() => {
-      window.location.href = 'game.html';
-    }, 800);
-  }
-
-  async function saveLead(phone) {
-    const nocoUrl = sessionStorage.getItem('NOCO_URL') || localStorage.getItem('NOCO_URL');
-    const nocoToken = sessionStorage.getItem('NOCO_TOKEN') || localStorage.getItem('NOCO_TOKEN');
-
-    if (!nocoUrl || !nocoToken) return;
-
     try {
-      const res = await fetch(`${nocoUrl}/api/v1/db/data/v1/jackpot_777/leads`, {
+      // Call start_session RPC → creates/upserts lead + session in Supabase
+      const resp = await fetch(`${SB_BASE}/rpc/start_session`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'xc-token': nocoToken
-        },
-        body: JSON.stringify({
-          phone: phone.replace(/^84/, '0'),
-          created_at: new Date().toISOString()
-        })
+        headers: SB_HEADERS,
+        body: JSON.stringify({ p_phone: phone }),
       });
-      const data = await res.json();
-      if (data.id) {
-        sessionStorage.setItem('leadId', data.id);
-      }
-    } catch (e) {
-      console.warn('NocoDB save failed:', e);
+
+      if (!resp.ok) throw new Error('start_session failed');
+
+      const result = await resp.json();
+      const data = result[0] || result;
+
+      // Save all session data to sessionStorage
+      sessionStorage.setItem('userPhone', phone);
+      sessionStorage.setItem('leadId', data.lead_id || '');
+      sessionStorage.setItem('sessionId', data.session_id || '');
+      sessionStorage.setItem('spinsLeft', data.spins_left || 3);
+
+      // Small delay for UX feel, then go to game
+      setTimeout(() => { window.location.href = 'game.html'; }, 600);
+    } catch (err) {
+      console.error('Supabase login error:', err);
+      // Fallback: still go to game with default spins
+      sessionStorage.setItem('userPhone', phone);
+      sessionStorage.setItem('spinsLeft', 3);
+      setTimeout(() => { window.location.href = 'game.html'; }, 800);
     }
   }
 
